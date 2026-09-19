@@ -1,18 +1,27 @@
 import type { Lead, ScoreResult } from "../types";
 import { RESULTS } from "../data/results";
+import { whatsappE164 } from "./phone";
 
 const LEAD_KEY = "insside_quiz_lead";
 const RESULT_KEY = "insside_quiz_result";
 
-const WEBHOOK_URL = import.meta.env.VITE_LEAD_WEBHOOK as string | undefined;
+/**
+ * Endpoint serverless propio (api/lead.ts) que reenvía al webhook de
+ * GoHighLevel. La URL del webhook vive solo en el servidor.
+ */
+const LEAD_ENDPOINT = "/api/lead";
 
 export interface StoredPayload {
   nombre: string;
   email: string;
+  whatsapp: string;
   perfil: string;
+  perfilKey: string;
   nivel: string;
+  nivelKey: string;
   puntaje: number;
   subescalas: ScoreResult["subscales"];
+  showSupport: boolean;
   fecha: string;
 }
 
@@ -34,33 +43,39 @@ export function readLead(): Lead | null {
 }
 
 /**
- * Guarda lead + resultado en localStorage y, si hay `VITE_LEAD_WEBHOOK`
- * configurado, hace un POST con el payload. Nunca lanza: la UI sigue igual
- * aunque el webhook falle.
+ * Guarda lead + resultado en localStorage y, si la persona dejó email o
+ * WhatsApp, lo envía a /api/lead (→ CRM). Nunca lanza: la UI sigue igual
+ * aunque el envío falle.
  */
 export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> {
   const payload: StoredPayload = {
     nombre: lead.nombre.trim(),
     email: lead.email.trim(),
+    whatsapp: whatsappE164(lead.whatsappCode, lead.whatsappLocal),
     perfil: RESULTS[score.primary].titulo,
+    perfilKey: score.primary,
     nivel: score.level.label,
+    nivelKey: score.level.key,
     puntaje: score.total,
     subescalas: score.subscales,
+    showSupport: score.showSupport,
     fecha: new Date().toISOString(),
   };
 
   safeSet(LEAD_KEY, lead);
   safeSet(RESULT_KEY, payload);
 
-  if (!WEBHOOK_URL) return;
+  // Sin forma de contactar a la persona no hay nada que mandar al CRM.
+  if (!payload.email && !payload.whatsapp) return;
+
   try {
-    await fetch(WEBHOOK_URL, {
+    await fetch(LEAD_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
       keepalive: true,
     });
   } catch {
-    /* sin conexión / CORS: el dato ya quedó en localStorage */
+    /* sin conexión: el dato ya quedó en localStorage */
   }
 }

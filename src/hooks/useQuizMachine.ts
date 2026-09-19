@@ -4,6 +4,7 @@ import {
   QUESTIONS,
   SECTIONS,
 } from "../data/questions";
+import { defaultDialCode } from "../lib/phone";
 import type { Answers, LikertValue, Lead } from "../types";
 
 export type Step =
@@ -37,6 +38,13 @@ function buildSteps(): Step[] {
 
 const TOTAL_QUESTIONS = QUESTIONS.length;
 
+const emptyLead = (): Lead => ({
+  nombre: "",
+  email: "",
+  whatsappCode: defaultDialCode(),
+  whatsappLocal: "",
+});
+
 export interface QuizMachine {
   step: Step;
   stepIndex: number;
@@ -61,7 +69,7 @@ export function useQuizMachine(): QuizMachine {
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [answers, setAnswers] = useState<Answers>({});
-  const [lead, setLeadState] = useState<Lead>({ nombre: "", email: "" });
+  const [lead, setLeadState] = useState<Lead>(emptyLead);
 
   const step = steps[stepIndex];
 
@@ -94,7 +102,7 @@ export function useQuizMachine(): QuizMachine {
   const restart = useCallback(() => {
     setDirection(-1);
     setAnswers({});
-    setLeadState({ nombre: "", email: "" });
+    setLeadState(emptyLead());
     setStepIndex(0);
   }, []);
 

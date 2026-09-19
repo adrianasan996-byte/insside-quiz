@@ -336,4 +336,4 @@ export const SUPPORT_BOX = {
 };
 
 export const DISCLAIMER =
-  "Este test es una herramienta de autoconocimiento basada en modelos de psicología (TCC y ACT) e inspirada en escalas como el GAD-7. No es un diagnóstico clínico ni sustituye la valoración de un profesional. Tu email, si lo dejas, se usa solo para enviarte tu resultado y contenido relacionado de Insside; puedes darte de baja cuando quieras.";
+  "Este test es una herramienta de autoconocimiento basada en modelos de psicología (TCC y ACT) e inspirada en escalas como el GAD-7. No es un diagnóstico clínico ni sustituye la valoración de un profesional. Tu email o WhatsApp, si los dejas, se usan solo para enviarte tu resultado y contactarte de parte de Insside; puedes pedir que dejemos de escribirte cuando quieras.";
