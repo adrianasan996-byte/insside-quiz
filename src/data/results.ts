@@ -342,4 +342,4 @@ export const SUPPORT_BOX = {
 };
 
 export const DISCLAIMER =
-  "Este test no ofrece un diagnóstico clínico ni reemplaza la evaluación de un profesional de salud mental. Es una herramienta de autoconocimiento basada en principios utilizados en psicología, como la Terapia Cognitivo-Conductual (TCC) y la Terapia de Aceptación y Compromiso (ACT), e inspirada parcialmente en escalas de evaluación de ansiedad como el GAD-7. Tu email, si lo dejas, se usa solo para enviarte tu resultado y contenido relacionado de Insside; puedes darte de baja cuando quieras.";
+  "Este test no ofrece un diagnóstico clínico ni reemplaza la evaluación de un profesional de salud mental. Es una herramienta de autoconocimiento basada en principios utilizados en psicología, como la Terapia Cognitivo-Conductual (TCC) y la Terapia de Aceptación y Compromiso (ACT), e inspirada parcialmente en escalas de evaluación de ansiedad como el GAD-7. Tu email o WhatsApp, si los dejas, se usan solo para enviarte tu resultado y contactarte de parte de Insside; puedes pedir que dejemos de escribirte cuando quieras.";

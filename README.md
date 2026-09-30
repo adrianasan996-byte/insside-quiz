@@ -85,34 +85,45 @@ subescalas tengan el mismo número de ítems.
 
 ---
 
-## Captura de leads
+## Integración con GoHighLevel
 
-Al enviar el formulario final se guarda en `localStorage` (`insside_quiz_lead`,
-`insside_quiz_result`) y, **si defines `VITE_LEAD_WEBHOOK`**, se hace un `POST` con el resultado.
+Al enviar el formulario final, el quiz guarda el resultado en `localStorage` y, si la persona dejó
+**email o WhatsApp**, hace `POST /api/lead`. Esa función serverless (`api/lead.ts`) valida los datos y
+los reenvía al **Inbound Webhook** de un workflow de GHL. La URL del webhook vive solo en el
+servidor (nunca en el navegador ni en el repo).
 
-```bash
-cp .env.example .env
-# VITE_LEAD_WEBHOOK=https://hooks.zapier.com/...  (o Make, Google Apps Script, Formspree, tu API)
-```
+**Configuración (una vez):**
 
-Payload enviado:
+1. Vercel → proyecto `insside-quiz` → *Settings → Environment Variables* → agrega
+   `GHL_WEBHOOK_URL` = la URL del trigger *Inbound Webhook* (Production y Preview).
+2. *Redeploy* para que la función la lea.
+3. En GHL, crea las *Custom Fields* de abajo, manda una prueba (completa el quiz con tu email) →
+   en el trigger del workflow, *Fetch Sample Requests* → mapea los campos.
 
-```json
-{
-  "nombre": "…",
-  "email": "…",
-  "perfil": "Ansiedad rumiante",
-  "nivel": "Sobre-alerta",
-  "puntaje": 42,
-  "subescalas": { "rumia": 78, "control": 55, "social": 25, "rendimiento": 30, "somatica": 40 },
-  "fecha": "2026-08-27T21:00:00.000Z"
-}
-```
+**Campos que recibe el webhook (JSON plano):**
 
-El `fetch` nunca bloquea ni rompe la UI: si el webhook falla, el dato igual queda en
-`localStorage`. Ver `src/lib/storage.ts`.
+| Clave | Ejemplo | Mapear a en GHL |
+| --- | --- | --- |
+| `first_name` | `Ana` | Contact → First Name |
+| `last_name` | `Pérez` | Contact → Last Name |
+| `email` | `ana@ejemplo.com` | Contact → Email |
+| `phone` | `+584121234567` (E.164, WhatsApp) | Contact → Phone |
+| `source` | `test-ansiedad` | Contact → Source |
+| `perfil` | `Ansiedad rumiante` | Custom Field (texto) · *Perfil de ansiedad* |
+| `perfil_key` | `rumia` · `control` · `social` · `rendimiento` · `somatica` | Condición del workflow (If/Else) |
+| `nivel` | `Sobre-alerta` | Custom Field (texto) · *Nivel de ansiedad* |
+| `nivel_key` | `calma` · `alerta` · `sobrecarga` · `alarma` | Condición del workflow |
+| `puntaje` | `40` (0–100) | Custom Field (número) · *Puntaje ansiedad* |
+| `score_rumia` … `score_somatica` | `78` (0–100 cada uno) | Custom Fields (número), opcional |
+| `requiere_apoyo` | `si` / `no` | Condición → tarea/alerta de seguimiento prioritario |
+| `especialista_recomendado` | `Valentina Tello` | Custom Field (texto) · *Especialista sugerido* |
+| `tags` | `quiz-ansiedad,ansiedad-rumia,nivel-alerta` | Contact → Tags (Create/Update Contact) |
+| `resumen` | texto multilínea | Acción *Add Note* |
+| `fecha` | ISO 8601 | Opcional |
 
----
+Las claves de contacto vacías (`first_name`, `email`, `phone`…) **no se envían**, para no borrar
+datos que el contacto ya tenga en GHL. Para probar en local necesitas `vercel dev` (el `npm run dev`
+de Vite no sirve `/api`).
 
 ## Estructura
 
@@ -122,7 +133,8 @@ src/
 ├── hooks/useQuizMachine.ts # pasos, respuestas, navegación, progreso
 ├── lib/
 │   ├── scoring.ts          # computeScores() + partialDominant()
-│   └── storage.ts          # localStorage + webhook opcional
+│   ├── phone.ts            # códigos de país + normalización de WhatsApp
+│   └── storage.ts          # localStorage + envío a /api/lead
 ├── data/                   # TODO el contenido editable
 └── components/
     ├── Layout, ProgressBar, Wordmark
