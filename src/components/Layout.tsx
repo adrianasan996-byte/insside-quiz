@@ -25,7 +25,7 @@ export function Layout({ children, header, align = "center" }: LayoutProps) {
       <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-quiz flex-col px-5 pb-16 pt-6 sm:px-6">
         <header className="flex items-center justify-between gap-4">
           <Wordmark />
-          <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
+          <span className="font-sans text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
             Test de ansiedad
           </span>
         </header>
@@ -46,7 +46,7 @@ export function Layout({ children, header, align = "center" }: LayoutProps) {
           <a className="link-underline" href="https://www.insside.co" target="_blank" rel="noreferrer">
             Insside
           </a>{" "}
-          · Especialistas en salud mental, en español
+          · Especialistas en salud integral, en español
         </footer>
       </div>
     </div>

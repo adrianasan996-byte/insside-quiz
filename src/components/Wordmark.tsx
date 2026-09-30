@@ -10,7 +10,7 @@ export function Wordmark({ className = "" }: { className?: string }) {
       <img
         src="/brand/logos/wordmark-salvia.png"
         alt="Insside"
-        className="h-5 w-auto sm:h-6"
+        className="h-8 w-auto sm:h-10"
         draggable={false}
       />
     </a>

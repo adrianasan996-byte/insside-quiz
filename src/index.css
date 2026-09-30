@@ -47,7 +47,7 @@
 
 @layer components {
   .quiz-card {
-    @apply rounded-4xl border border-natural bg-white shadow-card;
+    @apply rounded-4xl border border-natural bg-gradient-to-b from-white to-salvia-wash/50 shadow-card;
   }
 
   .pill {

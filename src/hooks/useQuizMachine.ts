@@ -15,6 +15,9 @@ export type Step =
   | { kind: "lead" }
   | { kind: "result" };
 
+/** Índice de sección tras la cual se pide el email/WhatsApp (0-indexed). */
+const LEAD_AFTER_SECTION = 0;
+
 function buildSteps(): Step[] {
   const steps: Step[] = [{ kind: "intro" }];
   SECTIONS.forEach((_, sectionIndex) => {
@@ -28,10 +31,10 @@ function buildSteps(): Step[] {
         nthInSection: i,
       });
     });
+    if (sectionIndex === LEAD_AFTER_SECTION) steps.push({ kind: "lead" });
     const inter = INTERSTITIAL_AFTER_SECTION[sectionIndex];
     if (inter) steps.push({ kind: "interstitial", which: inter });
   });
-  steps.push({ kind: "lead" });
   steps.push({ kind: "result" });
   return steps;
 }
@@ -86,6 +89,7 @@ export function useQuizMachine(): QuizMachine {
       return step.which === "dinamico1" ? 2 : 4;
     }
     if (step.kind === "intro") return 0;
+    if (step.kind === "lead") return LEAD_AFTER_SECTION;
     return SECTIONS.length - 1;
   }, [step]);
 

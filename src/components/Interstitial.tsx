@@ -27,7 +27,7 @@ export function Interstitial({ content, illustration, onContinue }: Interstitial
         </div>
       ) : null}
 
-      <p className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-salvia-deep">
+      <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
         {content.eyebrow}
       </p>
       <h2 className="mt-3 text-balance text-[26px] font-bold leading-snug text-ink sm:text-3xl">

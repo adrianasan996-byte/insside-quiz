@@ -29,7 +29,7 @@ export function ProgressBar({ activeSectionIndex, progress }: ProgressBarProps) 
           );
         })}
       </div>
-      <div className="mt-2 flex items-center justify-between font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-ink-faint">
+      <div className="mt-2 flex items-center justify-between font-sans text-[11px] font-medium uppercase tracking-wide text-ink-faint">
         <span>
           Sección {Math.min(activeSectionIndex + 1, SECTIONS.length)} de {SECTIONS.length}
           {" · "}

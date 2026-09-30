@@ -13,7 +13,7 @@ import { whatsappLink } from "../data/specialists";
 import type { ScoreResult } from "../types";
 import { ILLUSTRATION } from "../data/assets";
 import { ScoreDial } from "./ScoreDial";
-import { TypeBars } from "./TypeBars";
+import { TypeBars, TYPE_COLOR } from "./TypeBars";
 import { SpecialistCard } from "./SpecialistCard";
 
 interface ResultScreenProps {
@@ -67,7 +67,7 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="quiz-card p-6 text-center sm:p-9"
       >
-        <p className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-salvia-deep">
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
           {nombreLimpio ? `${nombreLimpio}, tu resultado` : "Tu resultado"}
         </p>
         <h1 className="mx-auto mt-3 max-w-[22ch] text-balance text-3xl font-bold leading-[1.12] text-ink sm:text-[40px]">
@@ -121,8 +121,12 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
       ) : null}
 
       {/* ── Perfil dominante ── */}
-      <motion.section {...fade} className="mt-4 quiz-card p-6 sm:p-9">
-        <p className="font-sans text-xs font-semibold uppercase tracking-[0.16em] text-salvia-deep">
+      <motion.section
+        {...fade}
+        className="mt-4 quiz-card border-t-4 p-6 sm:p-9"
+        style={{ borderTopColor: TYPE_COLOR[primary.colorKey] }}
+      >
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
           Tu patrón dominante
         </p>
         <h2 className="mt-2 text-[28px] font-bold leading-tight text-ink sm:text-3xl">
@@ -134,7 +138,7 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
         </p>
 
         <div className="mt-7">
-          <p className="mb-3 font-sans text-xs font-medium uppercase tracking-[0.14em] text-ink-faint">
+          <p className="mb-3 font-sans text-xs font-medium uppercase tracking-wide text-ink-faint">
             Cómo se reparte tu ansiedad
           </p>
           <TypeBars

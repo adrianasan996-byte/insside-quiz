@@ -21,18 +21,18 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
       className="text-center"
     >
       <img
-        src={ILLUSTRATION.pensamientos}
+        src={ILLUSTRATION.abrazo}
         alt=""
         aria-hidden
         draggable={false}
         className="mx-auto h-32 w-auto sm:h-40"
       />
 
-      <p className="mt-5 font-sans text-xs font-semibold uppercase tracking-[0.2em] text-salvia-deep">
+      <p className="mt-5 font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
         Insside · Test
       </p>
 
-      <h1 className="mx-auto mt-4 max-w-[18ch] text-balance text-[34px] font-bold leading-[1.06] text-ink sm:text-5xl">
+      <h1 className="mx-auto mt-4 max-w-[18ch] text-balance bg-gradient-to-r from-salvia-deep via-balance to-terracota bg-clip-text text-[34px] font-bold leading-[1.06] text-transparent sm:text-5xl">
         ¿Qué tipo de ansiedad controla tu vida?
       </h1>
 
@@ -45,8 +45,16 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
       </p>
 
       <ul className="mt-7 flex flex-wrap items-center justify-center gap-2">
-        {META.map((m) => (
-          <li key={m} className="pill border border-natural bg-white text-ink-soft">
+        {META.map((m, i) => (
+          <li
+            key={m}
+            className={
+              "pill border " +
+              (i === META.length - 1
+                ? "border-transparent bg-salvia-wash font-semibold text-salvia-deep"
+                : "border-natural bg-white text-ink-soft")
+            }
+          >
             {m}
           </li>
         ))}
@@ -67,7 +75,7 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
       </p>
 
       <div className="mx-auto mt-8 max-w-readable rounded-3xl border border-natural bg-natural/60 p-5 text-left">
-        <p className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-salvia-deep">
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
           {HOW_TO_ANSWER.title}
         </p>
         <p className="mt-2 font-sans text-[13.5px] leading-relaxed text-ink-soft">

@@ -8,7 +8,7 @@ interface TypeBarsProps {
   primary: AnxietyType;
 }
 
-const COLOR: Record<string, string> = {
+export const TYPE_COLOR: Record<string, string> = {
   "type-rumia": "#8B9970",
   "type-control": "#64C1C4",
   "type-social": "#E3812F",
@@ -43,7 +43,7 @@ export function TypeBars({ subscales, ranked, primary }: TypeBarsProps) {
             <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-natural-deep/70">
               <motion.div
                 className="h-full rounded-full"
-                style={{ backgroundColor: COLOR[r.colorKey] }}
+                style={{ backgroundColor: TYPE_COLOR[r.colorKey] }}
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
                 transition={{ delay: 0.15 + i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}

@@ -43,7 +43,7 @@ export function QuestionCard({
       transition={{ duration: 0.25 }}
       className="quiz-card p-6 sm:p-8"
     >
-      <p className="font-sans text-xs font-medium uppercase tracking-[0.14em] text-ink-faint">
+      <p className="font-sans text-xs font-medium uppercase tracking-wide text-ink-faint">
         {section.prompt}
       </p>
 
