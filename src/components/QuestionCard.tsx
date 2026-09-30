@@ -71,7 +71,12 @@ export function QuestionCard({
                   : "border-natural bg-natural/60 text-ink-soft hover:border-ink/25 hover:text-ink")
               }
             >
-              <span>{opt.label}</span>
+              <span>
+                {opt.label}
+                <span className="block font-sans text-[12px] font-normal text-ink-faint">
+                  {opt.days}
+                </span>
+              </span>
               <span
                 aria-hidden
                 className={

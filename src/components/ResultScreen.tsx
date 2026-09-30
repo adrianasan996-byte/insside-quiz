@@ -4,10 +4,12 @@ import {
   DISCLAIMER,
   EDITORIAL,
   LEVEL_COPY,
+  LEVEL_DISCLAIMER,
   REFERENCES,
   RESULTS,
   SUPPORT_BOX,
 } from "../data/results";
+import { whatsappLink } from "../data/specialists";
 import type { ScoreResult } from "../types";
 import { ILLUSTRATION } from "../data/assets";
 import { ScoreDial } from "./ScoreDial";
@@ -33,6 +35,12 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
   const secondary = RESULTS[score.secondary];
   const levelCopy = LEVEL_COPY[score.level.key];
   const nombreLimpio = nombre.trim();
+  const supportWa = whatsappLink({
+    especialista: "un profesional",
+    perfil: primary.titulo,
+    nivel: score.level.label,
+    nombre: nombreLimpio || undefined,
+  });
 
   async function share() {
     const text = `Hice el test "¿Qué tipo de ansiedad controla tu vida?" de Insside. Mi perfil: ${primary.titulo} · nivel ${score.level.label}.`;
@@ -73,6 +81,9 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
         <p className="mx-auto mt-7 max-w-readable text-pretty font-sans text-[15px] leading-relaxed text-ink-soft">
           {levelCopy.parrafo}
         </p>
+        <p className="mx-auto mt-3 max-w-readable font-sans text-[12px] leading-relaxed text-ink-faint">
+          {LEVEL_DISCLAIMER}
+        </p>
       </motion.div>
 
       {/* ── Caja de apoyo (si aplica) ── */}
@@ -97,6 +108,14 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
                 </p>
               ))}
             </div>
+            <a
+              href={supportWa}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-primary mt-4 inline-flex"
+            >
+              {SUPPORT_BOX.cta}
+            </a>
           </div>
         </motion.div>
       ) : null}

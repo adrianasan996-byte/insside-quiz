@@ -1,15 +1,23 @@
 import type { LikertOption, Question, Section } from "../types";
 
 /**
- * Escala tipo GAD-7 (0-3). Misma redacción que la versión validada en español,
- * para que el test se sienta clínicamente serio (ref. Grow Therapy).
+ * Escala de respuesta (0-3) con rango de días explícito, para que sea
+ * fácil de auto-reportar sin ambigüedad ("¿varios días" cuántos son?).
  */
 export const LIKERT: LikertOption[] = [
-  { value: 0, label: "Ningún día" },
-  { value: 1, label: "Varios días" },
-  { value: 2, label: "Más de la mitad de los días" },
-  { value: 3, label: "Casi todos los días" },
+  { value: 0, label: "Nunca", days: "No me pasó en estas dos semanas." },
+  { value: 1, label: "Algunos días", days: "Me pasó entre 1 y 5 días." },
+  { value: 2, label: "Muchos días", days: "Me pasó entre 6 y 10 días." },
+  { value: 3, label: "Casi todos los días", days: "Me pasó entre 11 y 14 días." },
 ];
+
+export const HOW_TO_ANSWER = {
+  title: "¿Cómo responder?",
+  intro:
+    "Piensa únicamente en las últimas dos semanas, es decir, los últimos 14 días. En cada pregunta, elige la opción que más se acerque a lo que has vivido durante ese período.",
+  closing:
+    "No necesitas recordar cada día exactamente. Elige la opción que mejor represente cómo han sido para ti estas últimas dos semanas.",
+};
 
 export const SECTIONS: Section[] = [
   {
@@ -17,39 +25,36 @@ export const SECTIONS: Section[] = [
     key: "mente",
     title: "Tu mente en bucle",
     tagline: "Lo que pasa dentro de tu cabeza cuando nadie mira.",
-    prompt:
-      "En las últimas dos semanas, ¿con qué frecuencia te has sentido así?",
+    prompt: "En las últimas dos semanas, ¿con qué frecuencia te pasó esto?",
   },
   {
     index: 2,
     key: "cuerpo",
     title: "Tu cuerpo habla",
-    tagline:
-      "La ansiedad no vive solo en la mente. También en los hombros, el pecho, el estómago.",
-    prompt:
-      "En las últimas dos semanas, ¿con qué frecuencia lo notaste en el cuerpo?",
+    tagline: "La ansiedad no se siente solo en los pensamientos. A veces, el cuerpo habla primero.",
+    prompt: "En las últimas dos semanas, ¿con qué frecuencia notaste esto?",
   },
   {
     index: 3,
     key: "los-demas",
     title: "La mirada de los demás",
-    tagline: "Cómo te sientes cuando hay otras personas en la ecuación.",
-    prompt:
-      "En las últimas dos semanas, ¿con qué frecuencia te pasó esto con otras personas?",
+    tagline: "Lo que pasa dentro de ti cuando otras personas entran en la ecuación.",
+    prompt: "En las últimas dos semanas, ¿con qué frecuencia te pasó esto?",
   },
   {
     index: 4,
     key: "liston",
     title: "El listón siempre más alto",
-    tagline: "Tu relación con el logro, el error y el 'nunca es suficiente'.",
+    tagline: "Tu relación con el logro, el error y esa sensación de que nunca es suficiente.",
     prompt: "En las últimas dos semanas, ¿con qué frecuencia te reconociste en esto?",
   },
   {
     index: 5,
     key: "como-lo-llevas",
     title: "Cómo lo llevas",
-    tagline: "Lo que haces para sobrellevarlo y cuánto te está costando.",
-    prompt: "En las últimas dos semanas, ¿con qué frecuencia ocurrió?",
+    tagline:
+      "Lo que haces para sobrellevar la ansiedad y cuánto espacio puede estar ocupando en tu vida.",
+    prompt: "En las últimas dos semanas, ¿con qué frecuencia te pasó esto?",
   },
 ];
 
@@ -63,25 +68,25 @@ export const QUESTIONS: Question[] = [
     id: "m1",
     section: 0,
     type: "rumia",
-    text: "Le diste vueltas a la misma preocupación una y otra vez sin llegar a ninguna conclusión.",
+    text: "Le diste vueltas a la misma preocupación una y otra vez sin llegar a una conclusión.",
   },
   {
     id: "m2",
     section: 0,
     type: "control",
-    text: "Sentiste tensión difícil de soltar cuando algo quedaba en la incertidumbre o sin plan.",
+    text: "Sentiste tensión difícil de soltar cuando algo quedaba en la incertidumbre o sin un plan.",
   },
   {
     id: "m3",
     section: 0,
     type: "rumia",
-    text: "Tu mente saltó sola a escenarios de 'y si sale mal', incluso cuando todo iba bien.",
+    text: "Tu mente se fue automáticamente a escenarios de \"¿y si sale mal?\", incluso cuando todo iba bien.",
   },
   {
     id: "m4",
     section: 0,
     type: "control",
-    text: "Revisaste, confirmaste o repasaste cosas más veces de las necesarias para quedarte tranquilo/a.",
+    text: "Revisaste, confirmaste o repasaste algo varias veces para poder sentirte tranquilo/a.",
   },
 
   // ── Sección 2 · Tu cuerpo habla ──────────────────────────────
@@ -89,20 +94,20 @@ export const QUESTIONS: Question[] = [
     id: "c1",
     section: 1,
     type: "somatica",
-    text: "Notaste tensión física: mandíbula apretada, hombros duros, estómago cerrado.",
+    text: "Sentiste tensión física, como la mandíbula apretada, los hombros tensos o malestar en el estómago.",
   },
   {
     id: "c2",
     section: 1,
     type: "somatica",
-    text: "Te costó dormirte o te despertaste de madrugada con la cabeza ya acelerada.",
+    text: "Te costó dormirte o te despertaste durante la noche con la mente acelerada.",
   },
   {
     id: "c3",
     section: 1,
     type: "somatica",
     panicFlag: true,
-    text: "Tuviste oleadas de miedo intenso con corazón disparado, falta de aire o mareo, casi de la nada.",
+    text: "Experimentaste momentos de miedo intenso acompañados de sensaciones como el corazón acelerado, falta de aire o mareo.",
   },
 
   // ── Sección 3 · La mirada de los demás ──────────────────────
@@ -110,19 +115,19 @@ export const QUESTIONS: Question[] = [
     id: "s1",
     section: 2,
     type: "social",
-    text: "Después de una conversación o reunión, repasaste lo que dijiste buscando en qué quedaste mal.",
+    text: "Después de una conversación o reunión, repasaste lo que dijiste buscando algo que pudiste haber hecho o dicho mal.",
   },
   {
     id: "s2",
     section: 2,
     type: "social",
-    text: "Evitaste hablar, opinar o pedir algo por miedo a que te juzgaran o a incomodar.",
+    text: "Evitaste hablar, opinar o pedir algo por miedo a ser juzgado/a, equivocarte o incomodar.",
   },
   {
     id: "s3",
     section: 2,
     type: "social",
-    text: "Comparaste tu vida con la de otros (redes incluidas) y saliste sintiéndote atrás.",
+    text: "Comparaste tu vida con la de otras personas —incluyendo lo que ves en redes sociales— y terminaste sintiendo que estabas atrás.",
   },
 
   // ── Sección 4 · El listón siempre más alto ─────────────────
@@ -130,25 +135,25 @@ export const QUESTIONS: Question[] = [
     id: "r1",
     section: 3,
     type: "rendimiento",
-    text: "Sentiste que algo 'no valía' o que fallaste porque no te salió casi perfecto.",
+    text: "Sentiste que algo perdía valor o que habías fallado porque no salió tan bien como esperabas.",
   },
   {
     id: "r2",
     section: 3,
     type: "rendimiento",
-    text: "Te costó descansar sin culpa: si no estabas siendo productivo/a, algo te incomodaba.",
+    text: "Te costó descansar sin sentir culpa o sentiste que deberías estar haciendo algo productivo.",
   },
   {
     id: "r3",
     section: 3,
     type: "rendimiento",
-    text: "Sentiste que estás 'fingiendo' y que en cualquier momento se darán cuenta de que no eres tan capaz.",
+    text: "Dudaste de tus capacidades o sentiste que, en cualquier momento, los demás podrían descubrir que no eres tan capaz como creen.",
   },
   {
     id: "r4",
     section: 3,
     type: "rendimiento",
-    text: "Postergaste algo importante porque el miedo a no hacerlo bien te paralizaba.",
+    text: "Postergaste algo importante porque el miedo a no hacerlo suficientemente bien te paralizaba.",
   },
 
   // ── Sección 5 · Cómo lo llevas ─────────────────────────────
@@ -156,40 +161,40 @@ export const QUESTIONS: Question[] = [
     id: "x1",
     section: 4,
     type: "rumia",
-    text: "Usaste el celular, series o scroll para 'apagar' la mente, aunque después te sintieras peor.",
+    text: "Usaste el celular, las series o el scroll para desconectarte de lo que estabas sintiendo, aunque después no necesariamente te sintieras mejor.",
   },
   {
     id: "x2",
     section: 4,
     type: "control",
-    text: "Te adelantaste a los problemas de los demás y cargaste con más de lo que te tocaba.",
+    text: "Te adelantaste a resolver los problemas de otras personas o cargaste con responsabilidades que no necesariamente te correspondían.",
   },
   {
     id: "x3",
     section: 4,
     type: "social",
-    text: "Cancelaste planes o dijiste que no a oportunidades por la ansiedad que te generaban.",
+    text: "Cancelaste planes o rechazaste oportunidades por la ansiedad que te generaban.",
   },
   {
     id: "x4",
     section: 4,
     type: "somatica",
     panicFlag: true,
-    text: "Evitaste lugares o situaciones por miedo a sentirte mal físicamente o a que 'te diera algo' ahí.",
+    text: "Evitaste lugares o situaciones por miedo a sentirte mal físicamente o a que algo te pasara estando allí.",
   },
   {
     id: "x5",
     section: 4,
     type: null,
     weight: 1.4,
-    text: "La ansiedad afectó tu trabajo, tus estudios o tus relaciones cercanas.",
+    text: "Sentiste que la ansiedad estaba afectando tu trabajo, tus estudios o tus relaciones cercanas.",
   },
   {
     id: "x6",
     section: 4,
     type: null,
     weight: 1.2,
-    text: "Recurriste a comida, alcohol, cafeína o compras para calmarte más de lo que te habría gustado.",
+    text: "Recurriste a la comida, el alcohol, la cafeína o las compras para intentar calmarte más de lo que te habría gustado.",
   },
 ];
 
