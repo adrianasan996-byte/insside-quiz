@@ -4,7 +4,7 @@ export interface InterstitialContent {
   eyebrow: string;
   title: string;
   body: string[];
-  /** Dato enmarcado (psicoeducación, sin cifras inventadas). */
+  /** Tip breve para observar en uno mismo (no es un dato clínico duro). */
   note?: string;
   cta: string;
 }
@@ -16,53 +16,53 @@ export interface InterstitialContent {
  */
 export const INTERSTITIAL_1: Record<AnxietyType, InterstitialContent> = {
   rumia: {
-    eyebrow: "Lo que llevas marcado",
-    title: "Tu ansiedad vive, sobre todo, en el pensamiento",
+    eyebrow: "Patrón rumiante",
+    title: "Parece que tu ansiedad está ocupando mucho espacio en tus pensamientos",
     body: [
-      "Cuando marcas mucho 'le doy vueltas' y 'y si sale mal', tu mente está usando la preocupación como si fuera una forma de resolver. El problema es que rumiar no resuelve: mantiene el problema encendido sin cerrarlo.",
-      "El cerebro aprende que preocuparse 'sirve' porque, casi siempre, lo que temías no pasó. Pero no pasó por azar, no por haberlo pensado 200 veces. Esa confusión es la que alimenta el bucle.",
+      "Cuando aparecen con frecuencia el \"le doy vueltas\" y el \"¿y si sale mal?\", preocuparte puede sentirse como una manera de prepararte, protegerte o encontrar una solución.",
+      "Pero pensar más no siempre significa resolver mejor. A veces, darle vueltas una y otra vez a una preocupación mantiene tu atención atrapada en ella sin acercarte a una respuesta.",
     ],
-    note: "La investigación sobre la preocupación muestra que la mayoría de lo que anticipamos con angustia no llega a ocurrir, y cuando ocurre solemos afrontarlo mejor de lo previsto.",
+    note: "La próxima vez que aparezca una preocupación, prueba preguntarte: \"¿Hay algo concreto que puedo hacer con esto hoy?\"",
     cta: "Seguir con el test",
   },
   control: {
-    eyebrow: "Lo que llevas marcado",
-    title: "Tu ansiedad busca certeza donde no la hay",
+    eyebrow: "Patrón anticipatorio",
+    title: "Parece que tu ansiedad está buscando certeza",
     body: [
-      "Planificar, revisar y adelantarte son intentos de eliminar la incertidumbre. Alivian por unos minutos, pero le enseñan a tu sistema nervioso que no tolera 'no saber', así que la próxima vez necesitarás más control para sentir lo mismo.",
-      "La intolerancia a la incertidumbre es uno de los motores mejor documentados de la ansiedad. La buena noticia: se puede entrenar, igual que un músculo.",
+      "Planificar, revisar y adelantarte pueden darte una sensación de tranquilidad momentánea. El problema aparece cuando sentirte tranquilo/a empieza a depender de tener cada vez más cosas bajo control.",
+      "La incertidumbre forma parte de la vida. Aprender a tolerarla gradualmente puede ayudarte a relacionarte de otra manera con aquello que no puedes prever.",
     ],
-    note: "No es lo mismo prevenir que controlar. Prevenir es un acto puntual y termina; controlar es un estado permanente que nunca se apaga del todo.",
+    note: "Prevenir tiene un punto de cierre. Intentar tener todo bajo control puede hacer que siempre quede algo más por revisar.",
     cta: "Seguir con el test",
   },
   social: {
-    eyebrow: "Lo que llevas marcado",
-    title: "Tu ansiedad se activa con la mirada de los demás",
+    eyebrow: "Patrón social",
+    title: "Parece que tu ansiedad se activa especialmente frente a la mirada de los demás",
     body: [
-      "Repasar lo que dijiste, evitar opinar, compararte: son señales de ansiedad social o evaluativa. Detrás hay una predicción automática —'me van a juzgar'— que casi nunca se comprueba, porque la evitación te impide ver que no pasa nada.",
-      "El 'efecto foco' hace que sobreestimes cuánto te miran y te recuerdan los demás. En la práctica, la gente está mucho más pendiente de sí misma que de ti.",
+      "Repasar lo que dijiste, evitar opinar o compararte constantemente pueden aparecer cuando existe miedo a ser evaluado/a negativamente.",
+      "Evitar una situación puede aliviar la ansiedad en el momento, pero también puede impedirte descubrir qué habría pasado realmente si hubieras participado.",
     ],
-    note: "Cada vez que evitas una situación social por miedo, el alivio inmediato refuerza el miedo para la próxima. Es un préstamo con intereses.",
+    note: "¿Cuántas decisiones estás tomando por lo que realmente quieres y cuántas por miedo a lo que otros puedan pensar?",
     cta: "Seguir con el test",
   },
   rendimiento: {
-    eyebrow: "Lo que llevas marcado",
-    title: "Tu ansiedad se disfraza de exigencia",
+    eyebrow: "Patrón de rendimiento",
+    title: "A veces la ansiedad puede parecer simplemente \"exigencia\"",
     body: [
-      "Cuando el descanso da culpa y el error se siente como fracaso, la ansiedad se esconde detrás de la palabra 'responsabilidad'. Rinde a corto plazo y por eso cuesta soltarla, pero el precio es agotamiento y la sensación de que nunca es suficiente.",
-      "El perfeccionismo no es amor por la excelencia: es miedo a lo que crees que pasará si no eres impecable. Ese miedo se puede mirar de frente.",
+      "Cuando descansar genera culpa, equivocarte pesa demasiado o nada parece suficiente, la autoexigencia puede convertirse en una manera de intentar protegerte del error, el fracaso o el juicio de otros.",
+      "Puede ayudarte a rendir durante un tiempo, pero también puede terminar generando agotamiento o hacer más difícil comenzar cuando sientes que no podrás alcanzar el estándar que te has puesto.",
     ],
-    note: "Separar tu valor como persona de tu rendimiento no te hace rendir menos. En general, reduce el bloqueo y la procrastinación.",
+    note: "Querer hacer las cosas bien no tiene que significar exigirte hacerlas perfectas.",
     cta: "Seguir con el test",
   },
   somatica: {
-    eyebrow: "Lo que llevas marcado",
-    title: "Tu ansiedad habla primero por el cuerpo",
+    eyebrow: "Patrón somático",
+    title: "Parece que tu cuerpo está expresando una parte importante de tu ansiedad",
     body: [
-      "Tensión, insomnio, opresión en el pecho, oleadas de miedo: tu sistema de alarma está activándose aunque no haya un peligro real delante. El cuerpo reacciona como si lo hubiera, y esas sensaciones dan miedo por sí mismas, lo que sube todavía más la activación.",
-      "No estás exagerando ni 'inventando' los síntomas. Son reales y tienen una explicación fisiológica. Y se pueden regular con práctica.",
+      "Tensión, dificultades para dormir, palpitaciones, mareo o momentos de miedo intenso pueden aparecer junto con la ansiedad.",
+      "Esas sensaciones son reales. Y cuando además nos asustan, puede formarse un círculo: aparece una sensación, aumenta el miedo y ese miedo activa todavía más el cuerpo.",
     ],
-    note: "Si los síntomas físicos son intensos o nuevos, conviene descartar causas médicas con un profesional. Hecho eso, el trabajo psicológico sobre la ansiedad es muy efectivo.",
+    note: "Algunos síntomas físicos también pueden tener otras causas. Si son nuevos, intensos, persistentes o te preocupan, es importante consultarlos con un profesional de salud.",
     cta: "Seguir con el test",
   },
 };
@@ -73,47 +73,47 @@ export const INTERSTITIAL_1: Record<AnxietyType, InterstitialContent> = {
  */
 export const INTERSTITIAL_2: Record<AnxietyType, InterstitialContent> = {
   rumia: {
-    eyebrow: "Antes de tu resultado",
-    title: "Distraerte no es lo mismo que calmarte",
+    eyebrow: "Patrón rumiante",
+    title: "Distraerte no siempre significa calmarte",
     body: [
-      "El scroll, las series y estar siempre 'haciendo algo' bajan el volumen del pensamiento por un rato, pero no procesan nada. Por eso vuelve, muchas veces más fuerte, cuando por fin te detienes.",
-      "En tu resultado vas a encontrar herramientas para trabajar el pensamiento en lugar de solo taparlo.",
+      "El scroll, las series o mantenerte constantemente ocupado/a pueden ayudarte a bajar el volumen de tus pensamientos durante un rato. Pero si se convierten en tu única manera de manejar lo que sientes, es posible que la preocupación vuelva cuando te detengas.",
+      "En tu resultado encontrarás herramientas para comenzar a relacionarte de otra manera con esos pensamientos.",
     ],
     cta: "Ver mi resultado",
   },
   control: {
-    eyebrow: "Antes de tu resultado",
-    title: "Cargar con todo también es una conducta de seguridad",
+    eyebrow: "Patrón anticipatorio",
+    title: "Cargar con todo también puede ser una forma de buscar control",
     body: [
-      "Adelantarte a los problemas de los demás calma tu ansiedad, no la de ellos. Es una forma de control que te deja exhausto/a y a los demás sin espacio para resolver lo suyo.",
-      "En tu resultado vas a encontrar formas concretas de tolerar la incertidumbre sin apagarla con más esfuerzo.",
+      "Adelantarte constantemente a lo que podría salir mal —incluso en la vida de otras personas— puede darte una sensación temporal de seguridad. Pero también puede dejarte agotado/a.",
+      "En tu resultado encontrarás herramientas para practicar algo diferente: hacer lo que sí está en tus manos y comenzar a dejar espacio para aquello que no puedes controlar.",
     ],
     cta: "Ver mi resultado",
   },
   social: {
-    eyebrow: "Antes de tu resultado",
-    title: "Cada plan que cancelas confirma el miedo",
+    eyebrow: "Patrón social",
+    title: "Evitar puede aliviarte ahora y mantener el miedo después",
     body: [
-      "Decir que no a lo que te da ansiedad social trae un alivio inmediato y real. El problema es lo que ese alivio le enseña a tu cerebro: 'menos mal que no fui'. Así el mundo seguro se hace cada vez más pequeño.",
-      "En tu resultado vas a encontrar experimentos para probar, en dosis pequeñas, que puedes estar ahí y sostenerlo.",
+      "Cancelar un plan o evitar una situación que te genera ansiedad puede producir alivio inmediato. Precisamente por ese alivio, tu mente puede aprender que evitar era la manera de protegerte.",
+      "En tu resultado encontrarás formas de comenzar a acercarte, poco a poco y respetando tu ritmo, a algunas de las situaciones que hoy te generan ansiedad.",
     ],
     cta: "Ver mi resultado",
   },
   rendimiento: {
-    eyebrow: "Antes de tu resultado",
-    title: "El descanso con culpa no descansa",
+    eyebrow: "Patrón de rendimiento",
+    title: "Si descansas con culpa, probablemente no estás descansando del todo",
     body: [
-      "Si para desconectar necesitas 'merecértelo', tu sistema nervioso nunca baja del todo. La recuperación real no se gana: se necesita, como el agua.",
-      "En tu resultado vas a encontrar herramientas para poner un techo sano a la autoexigencia.",
+      "Cuando sientes que primero tienes que \"merecerte\" una pausa, incluso descansar puede convertirse en otra tarea pendiente. Tu cuerpo y tu mente necesitan recuperación; el descanso también forma parte de cuidarte.",
+      "En tu resultado encontrarás herramientas para comenzar a poner límites más saludables a la autoexigencia.",
     ],
     cta: "Ver mi resultado",
   },
   somatica: {
-    eyebrow: "Antes de tu resultado",
-    title: "Evitar el síntoma lo vuelve más grande",
+    eyebrow: "Patrón somático",
+    title: "Tenerle miedo a la sensación puede aumentar el miedo",
     body: [
-      "Cuando dejas de ir a lugares por miedo a sentirte mal, tu cuerpo nunca llega a comprobar que esas sensaciones, aunque incómodas, no son peligrosas y bajan solas.",
-      "En tu resultado vas a encontrar técnicas para regular la activación y volver, poco a poco, a lo que dejaste de hacer.",
+      "Cuando comienzas a evitar lugares o actividades por temor a experimentar determinadas sensaciones físicas, esas sensaciones pueden empezar a condicionar cada vez más lo que haces.",
+      "Trabajar gradualmente la relación con ellas, especialmente con orientación profesional cuando son intensas, puede ayudarte a recuperar seguridad. En tu resultado encontrarás algunas herramientas para comenzar a comprender mejor lo que ocurre en tu cuerpo.",
     ],
     cta: "Ver mi resultado",
   },

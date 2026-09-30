@@ -14,6 +14,8 @@ export type LikertValue = 0 | 1 | 2 | 3;
 export interface LikertOption {
   value: LikertValue;
   label: string;
+  /** Rango de días que representa la opción, p.ej. "Me pasó entre 1 y 5 días." */
+  days: string;
 }
 
 export interface Question {

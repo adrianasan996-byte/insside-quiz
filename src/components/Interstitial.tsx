@@ -27,7 +27,7 @@ export function Interstitial({ content, illustration, onContinue }: Interstitial
         </div>
       ) : null}
 
-      <p className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-salvia-deep">
+      <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
         {content.eyebrow}
       </p>
       <h2 className="mt-3 text-balance text-[26px] font-bold leading-snug text-ink sm:text-3xl">
@@ -45,7 +45,7 @@ export function Interstitial({ content, illustration, onContinue }: Interstitial
       {content.note ? (
         <div className="mt-6 rounded-2xl border border-salvia/60 bg-salvia-wash/70 p-4">
           <p className="font-sans text-[13.5px] leading-relaxed text-ink">
-            <span className="font-semibold">Dato · </span>
+            <span className="font-semibold">Para observar · </span>
             {content.note}
           </p>
         </div>

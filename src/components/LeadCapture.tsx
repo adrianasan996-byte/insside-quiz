@@ -12,12 +12,13 @@ interface LeadCaptureProps {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const inputClass =
-  "w-full rounded-2xl border bg-natural px-4 py-3 font-sans text-[15px] text-ink outline-none transition focus:border-salvia-deep";
+  "rounded-2xl border bg-natural px-4 py-3 font-sans text-[15px] text-ink outline-none transition focus:border-salvia-deep";
 
 export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
   const [touched, setTouched] = useState(false);
-  const emailInvalid = lead.email.trim() !== "" && !EMAIL_RE.test(lead.email.trim());
-  const phoneInvalid = !isValidWhatsapp(lead.whatsappCode, lead.whatsappLocal);
+  const emailInvalid = lead.email.trim() === "" || !EMAIL_RE.test(lead.email.trim());
+  const phoneInvalid =
+    lead.whatsappLocal.trim() === "" || !isValidWhatsapp(lead.whatsappCode, lead.whatsappLocal);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,15 +36,15 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
       noValidate
       className="quiz-card p-6 sm:p-9"
     >
-      <p className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-salvia-deep">
-        Último paso
+      <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
+        Antes de seguir
       </p>
       <h2 className="mt-3 text-balance text-[26px] font-bold leading-snug text-ink sm:text-3xl">
         ¿A nombre de quién es este resultado?
       </h2>
       <p className="mt-3 text-pretty font-sans text-[15px] leading-relaxed text-ink-soft">
-        Personalizamos tu mini-diagnóstico. Si nos dejas tu email o WhatsApp, te enviamos tu
-        resultado y las herramientas para que las tengas a mano.
+        Necesitamos tu email y tu WhatsApp para poder enviarte tu resultado completo y las
+        herramientas, apenas termines el test.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -55,14 +56,12 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
             onChange={(e) => onChange({ ...lead, nombre: e.target.value })}
             autoComplete="given-name"
             placeholder="Cómo te llamas"
-            className={`mt-1.5 border-natural ${inputClass}`}
+            className={`mt-1.5 w-full border-natural ${inputClass}`}
           />
         </label>
 
         <label className="block">
-          <span className="font-sans text-[13px] font-medium text-ink">
-            Tu email <span className="font-normal text-ink-faint">· opcional</span>
-          </span>
+          <span className="font-sans text-[13px] font-medium text-ink">Tu email</span>
           <input
             type="email"
             value={lead.email}
@@ -71,7 +70,7 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
             autoComplete="email"
             placeholder="tucorreo@ejemplo.com"
             aria-invalid={touched && emailInvalid}
-            className={`mt-1.5 ${inputClass} ${touched && emailInvalid ? "border-lvl-alarma" : "border-natural"}`}
+            className={`mt-1.5 w-full ${inputClass} ${touched && emailInvalid ? "border-lvl-alarma" : "border-natural"}`}
           />
           {touched && emailInvalid ? (
             <span className="mt-1 block font-sans text-xs text-lvl-alarma">
@@ -82,7 +81,7 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
 
         <div>
           <label htmlFor="whatsapp" className="font-sans text-[13px] font-medium text-ink">
-            Tu WhatsApp <span className="font-normal text-ink-faint">· opcional</span>
+            Tu WhatsApp
           </label>
           <div className="mt-1.5 flex gap-2">
             <select

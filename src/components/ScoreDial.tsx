@@ -58,7 +58,7 @@ export function ScoreDial({ score, level }: ScoreDialProps) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-5xl font-bold tabular-nums text-ink">{display}</span>
-          <span className="font-sans text-xs font-medium uppercase tracking-[0.16em] text-ink-faint">
+          <span className="font-sans text-xs font-medium uppercase tracking-wide text-ink-faint">
             de 100
           </span>
         </div>

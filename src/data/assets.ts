@@ -2,6 +2,7 @@ import type { AnxietyType } from "../types";
 
 /** Ilustraciones de marca Insside (carpeta public/brand/ilustraciones). */
 export const ILLUSTRATION = {
+  abrazo: "/brand/ilustraciones/abrazo.png",
   pensamientos: "/brand/ilustraciones/pensamientos.png",
   pensando: "/brand/ilustraciones/pensando.png",
   nublado: "/brand/ilustraciones/nublado.png",

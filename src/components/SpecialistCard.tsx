@@ -18,7 +18,7 @@ export function SpecialistCard({ primary, perfil, nivel, nombre }: SpecialistCar
 
   return (
     <div className="rounded-4xl border border-natural bg-natural p-6 sm:p-7">
-      <p className="font-sans text-xs font-semibold uppercase tracking-[0.16em] text-salvia-deep">
+      <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
         Tu siguiente paso en Insside
       </p>
       <h3 className="mt-2 text-xl font-bold text-ink">

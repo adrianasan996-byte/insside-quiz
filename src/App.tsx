@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Layout } from "./components/Layout";
 import { ProgressBar } from "./components/ProgressBar";
@@ -34,6 +34,14 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [m.stepIndex]);
 
+  const leadSubmitted = useRef(false);
+  useEffect(() => {
+    if (score && !leadSubmitted.current) {
+      leadSubmitted.current = true;
+      void submitLead(m.lead, score);
+    }
+  }, [score, m.lead]);
+
   const showProgress =
     step.kind === "section-intro" ||
     step.kind === "question" ||
@@ -42,8 +50,6 @@ export default function App() {
   const slide = reduce ? 0 : m.direction * 40;
 
   function handleLeadSubmit() {
-    const s = computeScores(m.answers);
-    void submitLead(m.lead, s);
     m.next();
   }
 

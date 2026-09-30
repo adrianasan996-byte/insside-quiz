@@ -4,14 +4,16 @@ import {
   DISCLAIMER,
   EDITORIAL,
   LEVEL_COPY,
+  LEVEL_DISCLAIMER,
   REFERENCES,
   RESULTS,
   SUPPORT_BOX,
 } from "../data/results";
+import { whatsappLink } from "../data/specialists";
 import type { ScoreResult } from "../types";
 import { ILLUSTRATION } from "../data/assets";
 import { ScoreDial } from "./ScoreDial";
-import { TypeBars } from "./TypeBars";
+import { TypeBars, TYPE_COLOR } from "./TypeBars";
 import { SpecialistCard } from "./SpecialistCard";
 
 interface ResultScreenProps {
@@ -33,6 +35,12 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
   const secondary = RESULTS[score.secondary];
   const levelCopy = LEVEL_COPY[score.level.key];
   const nombreLimpio = nombre.trim();
+  const supportWa = whatsappLink({
+    especialista: "un profesional",
+    perfil: primary.titulo,
+    nivel: score.level.label,
+    nombre: nombreLimpio || undefined,
+  });
 
   async function share() {
     const text = `Hice el test "¿Qué tipo de ansiedad controla tu vida?" de Insside. Mi perfil: ${primary.titulo} · nivel ${score.level.label}.`;
@@ -59,7 +67,7 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="quiz-card p-6 text-center sm:p-9"
       >
-        <p className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-salvia-deep">
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
           {nombreLimpio ? `${nombreLimpio}, tu resultado` : "Tu resultado"}
         </p>
         <h1 className="mx-auto mt-3 max-w-[22ch] text-balance text-3xl font-bold leading-[1.12] text-ink sm:text-[40px]">
@@ -72,6 +80,9 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
 
         <p className="mx-auto mt-7 max-w-readable text-pretty font-sans text-[15px] leading-relaxed text-ink-soft">
           {levelCopy.parrafo}
+        </p>
+        <p className="mx-auto mt-3 max-w-readable font-sans text-[12px] leading-relaxed text-ink-faint">
+          {LEVEL_DISCLAIMER}
         </p>
       </motion.div>
 
@@ -97,13 +108,25 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
                 </p>
               ))}
             </div>
+            <a
+              href={supportWa}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-primary mt-4 inline-flex"
+            >
+              {SUPPORT_BOX.cta}
+            </a>
           </div>
         </motion.div>
       ) : null}
 
       {/* ── Perfil dominante ── */}
-      <motion.section {...fade} className="mt-4 quiz-card p-6 sm:p-9">
-        <p className="font-sans text-xs font-semibold uppercase tracking-[0.16em] text-salvia-deep">
+      <motion.section
+        {...fade}
+        className="mt-4 quiz-card border-t-4 p-6 sm:p-9"
+        style={{ borderTopColor: TYPE_COLOR[primary.colorKey] }}
+      >
+        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
           Tu patrón dominante
         </p>
         <h2 className="mt-2 text-[28px] font-bold leading-tight text-ink sm:text-3xl">
@@ -115,7 +138,7 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
         </p>
 
         <div className="mt-7">
-          <p className="mb-3 font-sans text-xs font-medium uppercase tracking-[0.14em] text-ink-faint">
+          <p className="mb-3 font-sans text-xs font-medium uppercase tracking-wide text-ink-faint">
             Cómo se reparte tu ansiedad
           </p>
           <TypeBars
