@@ -25,7 +25,7 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
         alt=""
         aria-hidden
         draggable={false}
-        className="mx-auto h-32 w-auto sm:h-40"
+        className="mx-auto h-48 w-auto sm:h-60"
       />
 
       <p className="mt-5 font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
@@ -36,13 +36,16 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
         ¿Qué tipo de ansiedad controla tu vida?
       </h1>
 
-      <p className="mx-auto mt-5 max-w-readable text-pretty font-sans text-[15px] leading-relaxed text-ink-soft">
-        Sentir ansiedad es parte de ser humanos. Pero cuando comienza a aparecer con frecuencia
-        puede influir en cómo duermes, lo que evitas, las decisiones que tomas o cuánto te exiges.
-        Este test puede ayudarte a reconocer{" "}
-        <em>qué patrón de ansiedad aparece con más fuerza en tu día a día</em>, cuánto espacio
-        podría estar ocupando y qué herramientas puedes comenzar a explorar.
-      </p>
+      <div className="mx-auto mt-5 max-w-readable space-y-3 text-pretty font-sans text-[15px] leading-relaxed text-ink-soft">
+        <p>
+          Sentir ansiedad es parte de ser humanos. Pero cuando aparece con frecuencia, puede influir
+          en cómo duermes, lo que evitas, las decisiones que tomas o cuánto te exiges.
+        </p>
+        <p>
+          Este test te ayuda a reconocer <em>qué patrón de ansiedad pesa más en tu día a día</em>,
+          cuánto espacio ocupa y qué herramientas puedes empezar a explorar.
+        </p>
+      </div>
 
       <ul className="mt-7 flex flex-wrap items-center justify-center gap-2">
         {META.map((m, i) => (
@@ -66,35 +69,47 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
         </button>
       </div>
 
-      <p className="mx-auto mt-5 max-w-[46ch] font-sans text-xs leading-relaxed text-ink-faint">
-        <strong className="font-semibold">Importante:</strong> este test no ofrece un diagnóstico
-        clínico ni reemplaza la evaluación de un profesional de salud mental. Es una herramienta de
-        autoconocimiento basada en principios utilizados en psicología, como la Terapia
-        Cognitivo-Conductual (TCC) y la Terapia de Aceptación y Compromiso (ACT), e inspirada
-        parcialmente en escalas de evaluación de ansiedad como el GAD-7.
+      <p className="mx-auto mt-5 max-w-readable text-balance font-sans text-xs leading-relaxed text-ink-faint">
+        <strong className="font-semibold">Importante:</strong> no es un diagnóstico clínico ni
+        reemplaza a un profesional. Es una herramienta de autoconocimiento basada en TCC y ACT, e
+        inspirada en escalas como el GAD-7.
       </p>
 
-      <div className="mx-auto mt-8 max-w-readable rounded-3xl border border-natural bg-natural/60 p-5 text-left">
-        <p className="font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep">
+      <details className="group mx-auto mt-8 max-w-readable rounded-3xl border border-natural bg-natural/60 text-left">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 font-sans text-xs font-semibold uppercase tracking-wide text-salvia-deep [&::-webkit-details-marker]:hidden">
           {HOW_TO_ANSWER.title}
-        </p>
-        <p className="mt-2 font-sans text-[13.5px] leading-relaxed text-ink-soft">
-          {HOW_TO_ANSWER.intro}
-        </p>
-        <ul className="mt-3 space-y-2">
-          {LIKERT.map((opt) => (
-            <li key={opt.value} className="font-sans text-[13.5px] leading-snug text-ink-soft">
-              <span className="font-semibold text-ink">
-                {opt.value} — {opt.label}
-              </span>{" "}
-              {opt.days}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 font-sans text-[13px] leading-relaxed text-ink-faint">
-          {HOW_TO_ANSWER.closing}
-        </p>
-      </div>
+          <svg
+            aria-hidden
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </summary>
+        <div className="px-5 pb-5">
+          <p className="font-sans text-[13.5px] leading-relaxed text-ink-soft">
+            {HOW_TO_ANSWER.intro}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {LIKERT.map((opt) => (
+              <li key={opt.value} className="font-sans text-[13.5px] leading-snug text-ink-soft">
+                <span className="font-semibold text-ink">
+                  {opt.value} — {opt.label}
+                </span>{" "}
+                {opt.days}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 font-sans text-[13px] leading-relaxed text-ink-faint">
+            {HOW_TO_ANSWER.closing}
+          </p>
+        </div>
+      </details>
     </motion.div>
   );
 }
