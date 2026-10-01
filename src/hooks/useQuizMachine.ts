@@ -4,7 +4,7 @@ import {
   QUESTIONS,
   SECTIONS,
 } from "../data/questions";
-import { defaultDialCode } from "../lib/phone";
+import { defaultCountry } from "../lib/phone";
 import type { Answers, LikertValue, Lead } from "../types";
 
 export type Step =
@@ -44,7 +44,7 @@ const TOTAL_QUESTIONS = QUESTIONS.length;
 const emptyLead = (): Lead => ({
   nombre: "",
   email: "",
-  whatsappCode: defaultDialCode(),
+  whatsappPais: defaultCountry(),
   whatsappLocal: "",
 });
 

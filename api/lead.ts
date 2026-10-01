@@ -21,21 +21,86 @@ interface Res {
   setHeader(name: string, value: string): void;
 }
 
-// Mantener sincronizado con src/types.ts, src/lib/scoring.ts y src/data/specialists.ts
-const PERFILES = {
-  rumia: "Ansiedad rumiante",
-  control: "Ansiedad anticipatoria",
-  social: "Ansiedad social",
-  rendimiento: "Ansiedad de rendimiento",
-  somatica: "Ansiedad somática",
+// Mantener sincronizado con src/data/results.ts (api/lead.test.ts falla si se desalinean)
+export const PERFILES = {
+  rumia: "Patrón rumiante",
+  control: "Patrón anticipatorio",
+  social: "Patrón social",
+  rendimiento: "Patrón de rendimiento",
+  somatica: "Patrón somático",
 } as const;
 
-const NIVELES = {
+export const NIVELES = {
   calma: "Calma vigilante",
   alerta: "Sobre-alerta",
   sobrecarga: "Sobrecarga",
   alarma: "Señal de alarma",
 } as const;
+
+/** Textos para los correos de GHL: lo mismo que la persona vio en su resultado. */
+export const TEXTO_PERFIL: Record<
+  PerfilKey,
+  { descripcion: string; herramienta: string; herramientaComo: string }
+> = {
+  rumia: {
+    descripcion:
+      "Según tus respuestas, la preocupación y el pensamiento repetitivo parecen ocupar bastante espacio en cómo experimentas la ansiedad. Piensas intentando encontrar tranquilidad, una respuesta o una solución. Pero algunas veces una pregunta lleva a otra y terminas dedicando mucha energía a resolver mentalmente cosas que todavía no han ocurrido.",
+    herramienta: "Ventana de preocupación",
+    herramientaComo:
+      'Elige 15 minutos del día para escribir aquello que te preocupa. Si una preocupación aparece fuera de ese momento, anótala brevemente y déjala para tu "ventana". Cuando llegue ese momento, vuelve a la lista y observa qué sigue necesitando tu atención y qué ha perdido intensidad.',
+  },
+  control: {
+    descripcion:
+      "Según tus respuestas, la incertidumbre parece ser uno de los lugares donde más se activa tu ansiedad. Planificas, revisas y te adelantas porque hacerlo puede ayudarte a sentir que las cosas están bajo control. El problema es que siempre puede aparecer algo nuevo que no habías previsto.",
+    herramienta: "Pequeños experimentos con la incertidumbre",
+    herramientaComo:
+      "Elige una situación cotidiana y de bajo riesgo en la que puedas practicar un poco menos de control: enviar un mensaje sin revisarlo repetidamente, dejar que otra persona elija el lugar o hacer un plan sin tener cada detalle definido. Después observa qué temías y qué ocurrió realmente.",
+  },
+  social: {
+    descripcion:
+      "Según tus respuestas, una parte importante de tu ansiedad parece activarse cuando existe la posibilidad de sentirte observado/a, evaluado/a o juzgado/a. Puedes comenzar a preguntarte cómo te ves, qué dijiste o qué estará pensando la otra persona. Y después de la interacción, tu mente puede seguir repasándola. A veces, evitar parece mucho más fácil.",
+    herramienta: "Mover la atención hacia afuera",
+    herramientaComo:
+      "En una conversación, prueba dirigir deliberadamente tu atención hacia lo que está diciendo la otra persona, sus gestos o lo que ocurre a tu alrededor, en lugar de monitorear constantemente cómo estás siendo percibido/a.",
+  },
+  rendimiento: {
+    descripcion:
+      "Según tus respuestas, la exigencia y el miedo a equivocarte parecen estar ocupando bastante espacio en cómo experimentas la ansiedad. Puede que desde afuera seas una persona responsable, comprometida o de alto rendimiento. Pero por dentro, alcanzar algo no siempre trae descanso: rápidamente aparece la próxima meta o algo que todavía podría estar mejor.",
+    herramienta: 'Define "suficientemente bien" antes de empezar',
+    herramientaComo:
+      "Antes de comenzar una tarea, establece tres criterios concretos que indiquen que está terminada y un tiempo razonable para realizarla. Cuando llegues allí, practica parar.",
+  },
+  somatica: {
+    descripcion:
+      "Según tus respuestas, tu cuerpo parece tener un papel importante en cómo experimentas la ansiedad. Puede aparecer como tensión, dificultades para dormir, palpitaciones, opresión, mareo o momentos de miedo intenso. Y cuando esas sensaciones te asustan, es posible que comiences a prestarles todavía más atención.",
+    herramienta: "Respiración lenta y cómoda",
+    herramientaComo:
+      "Durante unos minutos, prueba respirar de manera lenta y cómoda, sin forzar la respiración. Puedes permitir que la exhalación sea ligeramente más larga que la inhalación si se siente natural para ti. El objetivo no es obligar a la ansiedad a desaparecer, sino crear un momento de regulación.",
+  },
+};
+
+export const TEXTO_NIVEL: Record<NivelKey, { titulo: string; mensaje: string }> = {
+  calma: {
+    titulo: "Las señales aparecen de forma ocasional",
+    mensaje:
+      "Tus respuestas muestran algunas señales relacionadas con ansiedad, pero parecen aparecer con menor frecuencia o impacto. Este puede ser un buen momento para conocer mejor tu patrón, observar qué suele activarlo y comenzar a desarrollar herramientas para cuidar tu salud mental. No necesitas esperar a sentirte mal para comenzar a cuidarte.",
+  },
+  alerta: {
+    titulo: "La ansiedad ya está pidiendo un poco más de atención",
+    mensaje:
+      "Tus respuestas muestran señales relacionadas con ansiedad que aparecen con cierta frecuencia y podrían estar requiriendo energía para gestionarlas. Vale la pena prestarles atención. Puedes comenzar explorando algunas de las herramientas de tu resultado y, si notas que la ansiedad continúa, aumenta o comienza a interferir con áreas importantes de tu vida, conversar con un profesional puede ayudarte a comprender mejor qué está ocurriendo.",
+  },
+  sobrecarga: {
+    titulo: "La ansiedad está interfiriendo en algunas áreas de tu vida",
+    mensaje:
+      "Tus respuestas reflejan señales frecuentes de ansiedad y posible interferencia en áreas como el descanso, la concentración, tus decisiones, tus relaciones o las cosas que haces y dejas de hacer. En este punto, buscar apoyo profesional puede ser especialmente útil para comprender lo que estás viviendo y trabajar con herramientas adaptadas a ti. No tienes que esperar a estar peor para pedir ayuda.",
+  },
+  alarma: {
+    titulo: "Tus respuestas indican que sería importante buscar apoyo profesional",
+    mensaje:
+      "Tus respuestas reflejan un nivel alto y frecuente de malestar o señales de una interferencia importante en tu día a día. Este test no puede determinar qué está ocurriendo clínicamente, pero sí puede ayudarte a reconocer que sería recomendable conversar con un profesional de salud mental. Existen tratamientos eficaces para distintos problemas relacionados con la ansiedad. Un profesional puede evaluar tu situación de manera individual y ayudarte a determinar qué tipo de apoyo tiene más sentido para ti.",
+  },
+};
 
 const ESPECIALISTA: Record<PerfilKey, string> = {
   rumia: "Valentina Tello",
@@ -94,7 +159,12 @@ export function parseLead(raw: unknown): Lead | null {
   if (typeof b.nivelKey !== "string" || !(b.nivelKey in NIVELES)) return null;
 
   const nombre =
-    typeof b.nombre === "string" ? b.nombre.replace(/\p{Cc}/gu, "").trim().slice(0, 80) : "";
+    typeof b.nombre === "string"
+      ? b.nombre
+          .replace(/\p{Cc}/gu, "")
+          .trim()
+          .slice(0, 80)
+      : "";
 
   const s = (b.subescalas && typeof b.subescalas === "object" ? b.subescalas : {}) as Record<
     string,
@@ -162,6 +232,12 @@ export function buildWebhookPayload(lead: Lead, fecha = new Date().toISOString()
     score_somatica: lead.subescalas.somatica,
     requiere_apoyo: lead.showSupport ? "si" : "no",
     especialista_recomendado: ESPECIALISTA[lead.perfilKey],
+    // Textos listos para el correo de resultados
+    perfil_descripcion: TEXTO_PERFIL[lead.perfilKey].descripcion,
+    nivel_titulo: TEXTO_NIVEL[lead.nivelKey].titulo,
+    nivel_mensaje: TEXTO_NIVEL[lead.nivelKey].mensaje,
+    herramienta: TEXTO_PERFIL[lead.perfilKey].herramienta,
+    herramienta_como: TEXTO_PERFIL[lead.perfilKey].herramientaComo,
     // Ayudas para el workflow
     tags: tags.join(","),
     resumen,

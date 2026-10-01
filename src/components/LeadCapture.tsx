@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { PAISES, isValidWhatsapp } from "../lib/phone";
+import { formatLocal, isValidWhatsapp } from "../lib/phone";
+import { EMAIL_RE, sugerirEmail } from "../lib/email";
 import type { Lead } from "../types";
+import { CountrySelect } from "./CountrySelect";
 
 interface LeadCaptureProps {
   lead: Lead;
@@ -9,23 +11,83 @@ interface LeadCaptureProps {
   onSubmit: () => void;
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Dominios ya consultados en /api/verificar-email (true = recibe correo). */
+const dominiosVistos = new Map<string, boolean>();
+
+async function dominioValido(dominio: string): Promise<boolean> {
+  // `npm run dev` (Vite) no sirve /api: la verificación solo corre en Vercel.
+  if (import.meta.env.DEV) return true;
+  const cached = dominiosVistos.get(dominio);
+  if (cached !== undefined) return cached;
+  try {
+    const r = await fetch(`/api/verificar-email?dominio=${encodeURIComponent(dominio)}`);
+    if (!r.ok) return true; // sin verificación disponible: no bloqueamos
+    const { valido } = (await r.json()) as { valido?: boolean };
+    dominiosVistos.set(dominio, valido !== false);
+    return valido !== false;
+  } catch {
+    return true;
+  }
+}
 
 const inputClass =
   "rounded-2xl border bg-natural px-4 py-3 font-sans text-[15px] text-ink outline-none transition focus:border-salvia-deep";
 
 export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
-  const [touched, setTouched] = useState(false);
-  const emailInvalid = lead.email.trim() === "" || !EMAIL_RE.test(lead.email.trim());
-  const phoneInvalid =
-    lead.whatsappLocal.trim() === "" || !isValidWhatsapp(lead.whatsappCode, lead.whatsappLocal);
+  const [touched, setTouched] = useState({ email: false, phone: false });
+  const [dominioMalo, setDominioMalo] = useState<string | null>(null);
+  const [verificando, setVerificando] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  const email = lead.email.trim().toLowerCase();
+  const dominio = email.slice(email.lastIndexOf("@") + 1);
+  const emailFormatoMalo = email === "" || !EMAIL_RE.test(email);
+  const emailDominioMalo = !emailFormatoMalo && dominioMalo === dominio;
+  const sugerencia = emailFormatoMalo ? null : sugerirEmail(email);
+  const phoneInvalid = !isValidWhatsapp(lead.whatsappPais, lead.whatsappLocal);
+
+  // Si la persona corrige el correo, se olvida el aviso anterior.
+  useEffect(() => {
+    if (dominioMalo && dominioMalo !== dominio) setDominioMalo(null);
+  }, [dominio, dominioMalo]);
+
+  async function verificarDominio(): Promise<boolean> {
+    if (emailFormatoMalo) return false;
+    const ok = await dominioValido(dominio);
+    setDominioMalo(ok ? null : dominio);
+    return ok;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setTouched(true);
-    if (emailInvalid || phoneInvalid) return;
+    setTouched({ email: true, phone: true });
+    if (emailFormatoMalo) return emailRef.current?.focus();
+    if (phoneInvalid) return phoneRef.current?.focus();
+    setVerificando(true);
+    const ok = await verificarDominio();
+    setVerificando(false);
+    if (!ok) return emailRef.current?.focus();
     onSubmit();
   }
+
+  const errorEmail = !touched.email
+    ? null
+    : email === ""
+      ? "Escribe tu correo."
+      : emailFormatoMalo
+        ? "Revisa el correo: debe tener la forma nombre@dominio.com."
+        : emailDominioMalo
+          ? `El dominio «${dominio}» no existe o no recibe correos. Revisa cómo lo escribiste.`
+          : null;
+
+  const errorPhone = !touched.phone
+    ? null
+    : lead.whatsappLocal.trim() === ""
+      ? "Escribe tu número de WhatsApp."
+      : phoneInvalid
+        ? "Este número no parece un celular válido para el país elegido. Revisa los dígitos o el país."
+        : null;
 
   return (
     <motion.form
@@ -63,19 +125,36 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
         <label className="block">
           <span className="font-sans text-[13px] font-medium text-ink">Tu email</span>
           <input
+            ref={emailRef}
             type="email"
             value={lead.email}
             onChange={(e) => onChange({ ...lead, email: e.target.value })}
-            onBlur={() => setTouched(true)}
+            onBlur={() => {
+              setTouched((t) => ({ ...t, email: true }));
+              void verificarDominio();
+            }}
             autoComplete="email"
+            autoCapitalize="off"
+            spellCheck={false}
             placeholder="tucorreo@ejemplo.com"
-            aria-invalid={touched && emailInvalid}
-            className={`mt-1.5 w-full ${inputClass} ${touched && emailInvalid ? "border-lvl-alarma" : "border-natural"}`}
+            aria-invalid={!!errorEmail}
+            className={`mt-1.5 w-full ${inputClass} ${errorEmail ? "border-lvl-alarma" : "border-natural"}`}
           />
-          {touched && emailInvalid ? (
-            <span className="mt-1 block font-sans text-xs text-lvl-alarma">
-              Revisa el formato del correo.
+          {sugerencia ? (
+            <span className="mt-1.5 block font-sans text-[13px] text-ink-soft">
+              ¿Quisiste decir{" "}
+              <button
+                type="button"
+                onClick={() => onChange({ ...lead, email: sugerencia })}
+                className="font-semibold text-salvia-deep underline underline-offset-2"
+              >
+                {sugerencia}
+              </button>
+              ?
             </span>
+          ) : null}
+          {errorEmail ? (
+            <span className="mt-1 block font-sans text-xs text-lvl-alarma">{errorEmail}</span>
           ) : null}
         </label>
 
@@ -84,47 +163,51 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
             Tu WhatsApp
           </label>
           <div className="mt-1.5 flex gap-2">
-            <select
-              aria-label="Código de país"
-              value={lead.whatsappCode}
-              onChange={(e) => onChange({ ...lead, whatsappCode: e.target.value })}
-              className={`w-[7.5rem] shrink-0 cursor-pointer border-natural ${inputClass}`}
-            >
-              {PAISES.map((p) => (
-                <option key={p.iso} value={p.code}>
-                  {p.flag} {p.iso} {p.code}
-                </option>
-              ))}
-            </select>
+            <CountrySelect
+              value={lead.whatsappPais}
+              onChange={(iso) => onChange({ ...lead, whatsappPais: iso })}
+              className={`border-natural ${inputClass}`}
+            />
             <input
+              ref={phoneRef}
               id="whatsapp"
               type="tel"
               inputMode="tel"
               value={lead.whatsappLocal}
               onChange={(e) => onChange({ ...lead, whatsappLocal: e.target.value })}
-              onBlur={() => setTouched(true)}
+              onBlur={() => {
+                setTouched((t) => ({ ...t, phone: true }));
+                if (!phoneInvalid) {
+                  onChange({
+                    ...lead,
+                    whatsappLocal: formatLocal(lead.whatsappPais, lead.whatsappLocal),
+                  });
+                }
+              }}
               autoComplete="tel-national"
-              placeholder="412 123 4567"
-              aria-invalid={touched && phoneInvalid}
-              className={`min-w-0 flex-1 ${inputClass} ${touched && phoneInvalid ? "border-lvl-alarma" : "border-natural"}`}
+              placeholder="Tu número, sin el código"
+              aria-invalid={!!errorPhone}
+              className={`min-w-0 flex-1 ${inputClass} ${errorPhone ? "border-lvl-alarma" : "border-natural"}`}
             />
           </div>
-          {touched && phoneInvalid ? (
-            <span className="mt-1 block font-sans text-xs text-lvl-alarma">
-              Revisa el número (sin el código de país).
-            </span>
+          {errorPhone ? (
+            <span className="mt-1 block font-sans text-xs text-lvl-alarma">{errorPhone}</span>
           ) : null}
         </div>
       </div>
 
-      <button type="submit" className="btn-primary mt-7 w-full py-3.5 text-base">
-        Ver mi resultado
+      <button
+        type="submit"
+        disabled={verificando}
+        className="btn-primary mt-7 w-full py-3.5 text-base disabled:opacity-70"
+      >
+        {verificando ? "Verificando…" : "Ver mi resultado"}
       </button>
 
       <p className="mt-4 font-sans text-xs leading-relaxed text-ink-faint">
         Al continuar aceptas que Insside use estos datos para enviarte tu resultado y contactarte
-        por email o WhatsApp. Puedes pedir que dejemos de escribirte cuando quieras. No vendemos
-        tu información.
+        por email o WhatsApp. Puedes pedir que dejemos de escribirte cuando quieras. No vendemos tu
+        información.
       </p>
     </motion.form>
   );

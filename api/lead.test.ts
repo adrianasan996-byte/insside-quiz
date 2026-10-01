@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import handler, { buildWebhookPayload, parseLead } from "./lead";
+import handler, {
+  NIVELES,
+  PERFILES,
+  TEXTO_NIVEL,
+  TEXTO_PERFIL,
+  buildWebhookPayload,
+  parseLead,
+} from "./lead";
+import { LEVEL_COPY, RESULTS } from "../src/data/results";
+import { SEVERITY_LEVELS } from "../src/lib/scoring";
 
 const WEBHOOK = "https://example.test/hooks/abc";
 
@@ -79,7 +88,7 @@ describe("buildWebhookPayload", () => {
       email: "ana@ejemplo.com",
       phone: "+584121234567",
       source: "test-ansiedad",
-      perfil: "Ansiedad rumiante",
+      perfil: "Patrón rumiante",
       perfil_key: "rumia",
       nivel: "Sobre-alerta",
       nivel_key: "alerta",
@@ -91,6 +100,15 @@ describe("buildWebhookPayload", () => {
     });
   });
 
+  it("incluye los textos del resultado para el correo", () => {
+    const p = buildWebhookPayload(parseLead(valid)!);
+    expect(p.perfil_descripcion).toBe(RESULTS.rumia.reconocimiento);
+    expect(p.nivel_titulo).toBe(LEVEL_COPY.alerta.headline);
+    expect(p.nivel_mensaje).toBe(LEVEL_COPY.alerta.parrafo);
+    expect(p.herramienta).toBe(RESULTS.rumia.herramientas[0].nombre);
+    expect(p.herramienta_como).toBe(RESULTS.rumia.herramientas[0].como);
+  });
+
   it("omite claves de contacto vacías y agrega tag de apoyo", () => {
     const p = buildWebhookPayload(
       parseLead({ ...valid, nombre: "", email: "", showSupport: true })!,
@@ -99,6 +117,27 @@ describe("buildWebhookPayload", () => {
     expect(p).not.toHaveProperty("email");
     expect(p.requiere_apoyo).toBe("si");
     expect(p.tags).toContain("quiz-requiere-apoyo");
+  });
+});
+
+describe("sincronía con el contenido del sitio", () => {
+  it("perfiles y textos coinciden con src/data/results.ts", () => {
+    for (const k of Object.keys(PERFILES) as (keyof typeof PERFILES)[]) {
+      expect(PERFILES[k]).toBe(RESULTS[k].titulo);
+      expect(TEXTO_PERFIL[k].descripcion).toBe(RESULTS[k].reconocimiento);
+      expect(TEXTO_PERFIL[k].herramienta).toBe(RESULTS[k].herramientas[0].nombre);
+      expect(TEXTO_PERFIL[k].herramientaComo).toBe(RESULTS[k].herramientas[0].como);
+    }
+  });
+
+  it("niveles coinciden con scoring.ts y LEVEL_COPY", () => {
+    for (const l of SEVERITY_LEVELS) {
+      expect(NIVELES[l.key]).toBe(l.label);
+      expect(TEXTO_NIVEL[l.key]).toEqual({
+        titulo: LEVEL_COPY[l.key].headline,
+        mensaje: LEVEL_COPY[l.key].parrafo,
+      });
+    }
   });
 });
 

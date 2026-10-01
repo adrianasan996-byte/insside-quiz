@@ -72,8 +72,8 @@ export interface ScoreResult {
 export interface Lead {
   nombre: string;
   email: string;
-  /** Código de marcación, p.ej. "+58". */
-  whatsappCode: string;
+  /** País del WhatsApp (ISO-3166), p.ej. "VE". */
+  whatsappPais: string;
   /** Número tal como lo escribió la persona (sin código de país). */
   whatsappLocal: string;
 }

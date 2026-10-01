@@ -51,7 +51,7 @@ export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> 
   const payload: StoredPayload = {
     nombre: lead.nombre.trim(),
     email: lead.email.trim(),
-    whatsapp: whatsappE164(lead.whatsappCode, lead.whatsappLocal),
+    whatsapp: whatsappE164(lead.whatsappPais, lead.whatsappLocal),
     perfil: RESULTS[score.primary].titulo,
     perfilKey: score.primary,
     nivel: score.level.label,

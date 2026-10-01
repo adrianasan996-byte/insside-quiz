@@ -109,7 +109,7 @@ servidor (nunca en el navegador ni en el repo).
 | `email` | `ana@ejemplo.com` | Contact → Email |
 | `phone` | `+584121234567` (E.164, WhatsApp) | Contact → Phone |
 | `source` | `test-ansiedad` | Contact → Source |
-| `perfil` | `Ansiedad rumiante` | Custom Field (texto) · *Perfil de ansiedad* |
+| `perfil` | `Patrón rumiante` | Custom Field (texto) · *Perfil de ansiedad* |
 | `perfil_key` | `rumia` · `control` · `social` · `rendimiento` · `somatica` | Condición del workflow (If/Else) |
 | `nivel` | `Sobre-alerta` | Custom Field (texto) · *Nivel de ansiedad* |
 | `nivel_key` | `calma` · `alerta` · `sobrecarga` · `alarma` | Condición del workflow |
@@ -117,6 +117,11 @@ servidor (nunca en el navegador ni en el repo).
 | `score_rumia` … `score_somatica` | `78` (0–100 cada uno) | Custom Fields (número), opcional |
 | `requiere_apoyo` | `si` / `no` | Condición → tarea/alerta de seguimiento prioritario |
 | `especialista_recomendado` | `Valentina Tello` | Custom Field (texto) · *Especialista sugerido* |
+| `perfil_descripcion` | párrafo «Según tus respuestas…» del perfil | Custom Field (multilínea) · para el correo |
+| `nivel_titulo` | `La ansiedad ya está pidiendo un poco más de atención` | Custom Field (texto) · para el correo |
+| `nivel_mensaje` | párrafo de recomendación según el nivel | Custom Field (multilínea) · para el correo |
+| `herramienta` | `Ventana de preocupación` | Custom Field (texto) · para el correo |
+| `herramienta_como` | cómo aplicar esa herramienta | Custom Field (multilínea) · para el correo |
 | `tags` | `quiz-ansiedad,ansiedad-rumia,nivel-alerta` | Contact → Tags (Create/Update Contact) |
 | `resumen` | texto multilínea | Acción *Add Note* |
 | `fecha` | ISO 8601 | Opcional |
