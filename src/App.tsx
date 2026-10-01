@@ -124,7 +124,7 @@ export default function App() {
           )}
 
         {step.kind === "result" && score && (
-          <ResultScreen score={score} nombre={m.lead.nombre} onRestart={m.restart} />
+          <ResultScreen score={score} nombre={m.lead.nombre} email={m.lead.email} onRestart={m.restart} />
         )}
       </motion.div>
     </Layout>

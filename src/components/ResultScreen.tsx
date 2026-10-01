@@ -19,6 +19,8 @@ import { SpecialistCard } from "./SpecialistCard";
 interface ResultScreenProps {
   score: ScoreResult;
   nombre: string;
+  /** Correo al que se envió el resultado (vacío si no lo dejó). */
+  email: string;
   onRestart: () => void;
 }
 
@@ -29,7 +31,7 @@ const fade = {
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
+export function ResultScreen({ score, nombre, email, onRestart }: ResultScreenProps) {
   const [copied, setCopied] = useState(false);
   const primary = RESULTS[score.primary];
   const secondary = RESULTS[score.secondary];
@@ -85,6 +87,31 @@ export function ResultScreen({ score, nombre, onRestart }: ResultScreenProps) {
           {LEVEL_DISCLAIMER}
         </p>
       </motion.div>
+
+      {/* ── Aviso del correo (Gmail suele mandarlo a Promociones) ── */}
+      {email.trim() ? (
+        <motion.div
+          {...fade}
+          className="mt-4 flex items-start gap-3 rounded-3xl bg-salvia-wash px-5 py-4 text-left"
+        >
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            className="mt-0.5 h-5 w-5 shrink-0 text-salvia-deep"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3.5 6.5 8.5 6 8.5-6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <p className="font-sans text-[13.5px] leading-relaxed text-ink-soft">
+            Te enviamos tu resultado a <strong className="text-ink">{email.trim()}</strong>. Si no
+            lo ves en unos minutos, revisa la pestaña <strong>Promociones</strong> o{" "}
+            <strong>Spam</strong> y muévelo a Principal para no perderte los próximos correos.
+          </p>
+        </motion.div>
+      ) : null}
 
       {/* ── Caja de apoyo (si aplica) ── */}
       {score.showSupport ? (
