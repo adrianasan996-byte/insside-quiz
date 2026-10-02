@@ -91,7 +91,13 @@ describe("parseLead", () => {
 
   it("parcial solo exige contacto, no resultado", () => {
     const l = parseLead({ estado: "parcial", nombre: "Ana", email: "ana@ejemplo.com" });
-    expect(l).toEqual({ estado: "parcial", nombre: "Ana", email: "ana@ejemplo.com", whatsapp: "" });
+    expect(l).toEqual({
+      estado: "parcial",
+      nombre: "Ana",
+      apellido: "",
+      email: "ana@ejemplo.com",
+      whatsapp: "",
+    });
     expect(parseLead({ estado: "parcial", nombre: "Ana" })).toBeNull();
     expect(parseLead({ estado: "parcial", email: "nope" })).toBeNull();
   });
@@ -117,6 +123,13 @@ describe("buildWebhookPayload", () => {
       estado: "completo",
       tags: "quiz-ansiedad,quiz-completado,ansiedad-rumia,nivel-alerta",
     });
+  });
+
+  it("usa nombre y apellido tal cual cuando vienen separados", () => {
+    const p = buildWebhookPayload(
+      completo({ ...valid, nombre: "Ana María", apellido: " Pérez López\n" }),
+    );
+    expect(p).toMatchObject({ first_name: "Ana María", last_name: "Pérez López" });
   });
 
   it("parcial: solo contacto + tag de incompleto, sin campos de resultado", () => {

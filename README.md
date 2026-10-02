@@ -115,8 +115,8 @@ servidor (nunca en el navegador ni en el repo).
 
 | Clave | Ejemplo | Mapear a en GHL |
 | --- | --- | --- |
-| `first_name` | `Ana` | Contact → First Name |
-| `last_name` | `Pérez` | Contact → Last Name |
+| `first_name` | `Ana María` (campo *Nombre* del form) | Contact → First Name |
+| `last_name` | `Pérez López` (campo *Apellido* del form) | Contact → Last Name |
 | `email` | `ana@ejemplo.com` | Contact → Email |
 | `phone` | `+584121234567` (E.164, WhatsApp) | Contact → Phone |
 | `source` | `test-ansiedad` | Contact → Source |

@@ -121,6 +121,7 @@ type Estado = "parcial" | "completo";
 
 interface Contacto {
   nombre: string;
+  apellido: string;
   email: string;
   whatsapp: string;
 }
@@ -149,6 +150,16 @@ function pct(n: unknown): number {
     : 0;
 }
 
+/** Texto libre del cliente: sin caracteres de control y con largo acotado. */
+function texto(v: unknown): string {
+  return typeof v === "string"
+    ? v
+        .replace(/\p{Cc}/gu, "")
+        .trim()
+        .slice(0, 80)
+    : "";
+}
+
 /** Valida el body. Nada del cliente pasa al CRM sin whitelist ni límites. */
 export function parseLead(raw: unknown): Lead | null {
   let body = raw;
@@ -171,17 +182,12 @@ export function parseLead(raw: unknown): Lead | null {
   // Sin forma de contactar a la persona no hay nada que guardar en el CRM.
   if (!email && !whatsapp) return null;
 
-  const nombre =
-    typeof b.nombre === "string"
-      ? b.nombre
-          .replace(/\p{Cc}/gu, "")
-          .trim()
-          .slice(0, 80)
-      : "";
+  const nombre = texto(b.nombre);
+  const apellido = texto(b.apellido);
 
   // Sin estado explícito se asume "completo" (compatibilidad con clientes en caché).
   const estado: Estado = b.estado === "parcial" ? "parcial" : "completo";
-  if (estado === "parcial") return { estado, nombre, email, whatsapp };
+  if (estado === "parcial") return { estado, nombre, apellido, email, whatsapp };
 
   if (typeof b.perfilKey !== "string" || !(b.perfilKey in PERFILES)) return null;
   if (typeof b.nivelKey !== "string" || !(b.nivelKey in NIVELES)) return null;
@@ -201,6 +207,7 @@ export function parseLead(raw: unknown): Lead | null {
   return {
     estado,
     nombre,
+    apellido,
     email,
     whatsapp,
     perfilKey: b.perfilKey as PerfilKey,
@@ -224,11 +231,14 @@ type PayloadParcial = ReturnType<typeof buildParcial>;
 type PayloadCompleto = ReturnType<typeof buildCompleto>;
 
 function buildContacto(lead: Lead) {
-  const [firstName, ...rest] = lead.nombre.split(/\s+/).filter(Boolean);
+  // Clientes viejos (en caché) mandan todo en `nombre`: se parte en nombre + apellido.
+  const [primero, ...resto] = lead.nombre.split(/\s+/).filter(Boolean);
+  const firstName = lead.apellido ? lead.nombre : primero;
+  const lastName = lead.apellido || resto.join(" ");
   // Contacto (se omiten los vacíos para no borrar datos existentes en GHL)
   return {
     ...(firstName ? { first_name: firstName } : {}),
-    ...(rest.length ? { last_name: rest.join(" ") } : {}),
+    ...(lastName ? { last_name: lastName } : {}),
     ...(lead.email ? { email: lead.email } : {}),
     ...(lead.whatsapp ? { phone: lead.whatsapp } : {}),
     source: "test-ansiedad",

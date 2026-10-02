@@ -14,6 +14,7 @@ const LEAD_ENDPOINT = "/api/lead";
 export interface StoredPayload {
   estado: "completo";
   nombre: string;
+  apellido: string;
   email: string;
   whatsapp: string;
   perfil: string;
@@ -64,7 +65,13 @@ export async function submitPartialLead(lead: Lead): Promise<void> {
   const email = lead.email.trim();
   const whatsapp = whatsappE164(lead.whatsappPais, lead.whatsappLocal);
   if (!email && !whatsapp) return;
-  await postLead({ estado: "parcial", nombre: lead.nombre.trim(), email, whatsapp });
+  await postLead({
+    estado: "parcial",
+    nombre: lead.nombre.trim(),
+    apellido: lead.apellido.trim(),
+    email,
+    whatsapp,
+  });
 }
 
 /**
@@ -76,6 +83,7 @@ export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> 
   const payload: StoredPayload = {
     estado: "completo",
     nombre: lead.nombre.trim(),
+    apellido: lead.apellido.trim(),
     email: lead.email.trim(),
     whatsapp: whatsappE164(lead.whatsappPais, lead.whatsappLocal),
     perfil: RESULTS[score.primary].titulo,

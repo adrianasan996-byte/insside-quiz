@@ -34,12 +34,21 @@ const inputClass =
   "rounded-2xl border bg-natural px-4 py-3 font-sans text-[15px] text-ink outline-none transition focus:border-salvia-deep";
 
 export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
-  const [touched, setTouched] = useState({ email: false, phone: false });
+  const [touched, setTouched] = useState({
+    nombre: false,
+    apellido: false,
+    email: false,
+    phone: false,
+  });
   const [dominioMalo, setDominioMalo] = useState<string | null>(null);
   const [verificando, setVerificando] = useState(false);
+  const nombreRef = useRef<HTMLInputElement>(null);
+  const apellidoRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
 
+  const nombreVacio = lead.nombre.trim() === "";
+  const apellidoVacio = lead.apellido.trim() === "";
   const email = lead.email.trim().toLowerCase();
   const dominio = email.slice(email.lastIndexOf("@") + 1);
   const emailFormatoMalo = email === "" || !EMAIL_RE.test(email);
@@ -61,7 +70,9 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setTouched({ email: true, phone: true });
+    setTouched({ nombre: true, apellido: true, email: true, phone: true });
+    if (nombreVacio) return nombreRef.current?.focus();
+    if (apellidoVacio) return apellidoRef.current?.focus();
     if (emailFormatoMalo) return emailRef.current?.focus();
     if (phoneInvalid) return phoneRef.current?.focus();
     setVerificando(true);
@@ -70,6 +81,9 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
     if (!ok) return emailRef.current?.focus();
     onSubmit();
   }
+
+  const errorNombre = touched.nombre && nombreVacio ? "Escribe tu nombre." : null;
+  const errorApellido = touched.apellido && apellidoVacio ? "Escribe tu apellido." : null;
 
   const errorEmail = !touched.email
     ? null
@@ -110,17 +124,43 @@ export function LeadCapture({ lead, onChange, onSubmit }: LeadCaptureProps) {
       </p>
 
       <div className="mt-6 space-y-4">
-        <label className="block">
-          <span className="font-sans text-[13px] font-medium text-ink">Tu nombre</span>
-          <input
-            type="text"
-            value={lead.nombre}
-            onChange={(e) => onChange({ ...lead, nombre: e.target.value })}
-            autoComplete="given-name"
-            placeholder="Cómo te llamas"
-            className={`mt-1.5 w-full border-natural ${inputClass}`}
-          />
-        </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="font-sans text-[13px] font-medium text-ink">Tu nombre</span>
+            <input
+              ref={nombreRef}
+              type="text"
+              value={lead.nombre}
+              onChange={(e) => onChange({ ...lead, nombre: e.target.value })}
+              onBlur={() => setTouched((t) => ({ ...t, nombre: true }))}
+              autoComplete="given-name"
+              placeholder="Nombre"
+              aria-invalid={!!errorNombre}
+              className={`mt-1.5 w-full ${inputClass} ${errorNombre ? "border-lvl-alarma" : "border-natural"}`}
+            />
+            {errorNombre ? (
+              <span className="mt-1 block font-sans text-xs text-lvl-alarma">{errorNombre}</span>
+            ) : null}
+          </label>
+
+          <label className="block">
+            <span className="font-sans text-[13px] font-medium text-ink">Tu apellido</span>
+            <input
+              ref={apellidoRef}
+              type="text"
+              value={lead.apellido}
+              onChange={(e) => onChange({ ...lead, apellido: e.target.value })}
+              onBlur={() => setTouched((t) => ({ ...t, apellido: true }))}
+              autoComplete="family-name"
+              placeholder="Apellido"
+              aria-invalid={!!errorApellido}
+              className={`mt-1.5 w-full ${inputClass} ${errorApellido ? "border-lvl-alarma" : "border-natural"}`}
+            />
+            {errorApellido ? (
+              <span className="mt-1 block font-sans text-xs text-lvl-alarma">{errorApellido}</span>
+            ) : null}
+          </label>
+        </div>
 
         <label className="block">
           <span className="font-sans text-[13px] font-medium text-ink">Tu email</span>

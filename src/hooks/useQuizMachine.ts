@@ -43,6 +43,7 @@ const TOTAL_QUESTIONS = QUESTIONS.length;
 
 const emptyLead = (): Lead => ({
   nombre: "",
+  apellido: "",
   email: "",
   whatsappPais: defaultCountry(),
   whatsappLocal: "",

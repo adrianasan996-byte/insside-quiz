@@ -71,6 +71,7 @@ export interface ScoreResult {
 
 export interface Lead {
   nombre: string;
+  apellido: string;
   email: string;
   /** País del WhatsApp (ISO-3166), p.ej. "VE". */
   whatsappPais: string;

@@ -11,7 +11,7 @@ interface LayoutProps {
 
 export function Layout({ children, header, align = "center" }: LayoutProps) {
   return (
-    <div className="relative min-h-[100dvh] overflow-x-hidden">
+    <div className="relative min-h-[100dvh] overflow-x-clip">
       {/* Halos de fondo, estáticos y sutiles */}
       <div
         aria-hidden
