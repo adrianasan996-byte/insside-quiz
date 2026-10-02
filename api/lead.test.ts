@@ -42,6 +42,13 @@ const valid = {
   showSupport: false,
 };
 
+/** parseLead de un lead completo, con el tipo ya acotado. */
+function completo(raw: unknown) {
+  const l = parseLead(raw);
+  if (!l || l.estado !== "completo") throw new Error("se esperaba un lead completo");
+  return l;
+}
+
 describe("parseLead", () => {
   it("normaliza email y whatsapp", () => {
     const l = parseLead(valid)!;
@@ -73,15 +80,26 @@ describe("parseLead", () => {
   });
 
   it("acota puntajes a 0-100", () => {
-    const l = parseLead({ ...valid, puntaje: 999, subescalas: { rumia: -5 } })!;
+    const l = completo({ ...valid, puntaje: 999, subescalas: { rumia: -5 } });
     expect(l.puntaje).toBe(100);
     expect(l.subescalas.rumia).toBe(0);
+  });
+
+  it("sin estado se asume completo (clientes viejos en caché)", () => {
+    expect(parseLead(valid)!.estado).toBe("completo");
+  });
+
+  it("parcial solo exige contacto, no resultado", () => {
+    const l = parseLead({ estado: "parcial", nombre: "Ana", email: "ana@ejemplo.com" });
+    expect(l).toEqual({ estado: "parcial", nombre: "Ana", email: "ana@ejemplo.com", whatsapp: "" });
+    expect(parseLead({ estado: "parcial", nombre: "Ana" })).toBeNull();
+    expect(parseLead({ estado: "parcial", email: "nope" })).toBeNull();
   });
 });
 
 describe("buildWebhookPayload", () => {
   it("genera campos planos y tags de whitelist", () => {
-    const p = buildWebhookPayload(parseLead(valid)!, "2026-01-01T00:00:00.000Z");
+    const p = buildWebhookPayload(completo(valid), "2026-01-01T00:00:00.000Z");
     expect(p).toMatchObject({
       first_name: "Ana",
       last_name: "Pérez López",
@@ -96,12 +114,30 @@ describe("buildWebhookPayload", () => {
       score_rumia: 78,
       requiere_apoyo: "no",
       especialista_recomendado: "Valentina Tello",
-      tags: "quiz-ansiedad,ansiedad-rumia,nivel-alerta",
+      estado: "completo",
+      tags: "quiz-ansiedad,quiz-completado,ansiedad-rumia,nivel-alerta",
+    });
+  });
+
+  it("parcial: solo contacto + tag de incompleto, sin campos de resultado", () => {
+    const p = buildWebhookPayload(
+      parseLead({ ...valid, estado: "parcial" })!,
+      "2026-01-01T00:00:00.000Z",
+    );
+    expect(p).toEqual({
+      first_name: "Ana",
+      last_name: "Pérez López",
+      email: "ana@ejemplo.com",
+      phone: "+584121234567",
+      source: "test-ansiedad",
+      estado: "parcial",
+      tags: "quiz-ansiedad,quiz-incompleto",
+      fecha: "2026-01-01T00:00:00.000Z",
     });
   });
 
   it("incluye los textos del resultado para el correo", () => {
-    const p = buildWebhookPayload(parseLead(valid)!);
+    const p = buildWebhookPayload(completo(valid));
     expect(p.perfil_descripcion).toBe(RESULTS.rumia.reconocimiento);
     expect(p.nivel_titulo).toBe(LEVEL_COPY.alerta.headline);
     expect(p.nivel_mensaje).toBe(LEVEL_COPY.alerta.parrafo);
@@ -110,9 +146,7 @@ describe("buildWebhookPayload", () => {
   });
 
   it("omite claves de contacto vacías y agrega tag de apoyo", () => {
-    const p = buildWebhookPayload(
-      parseLead({ ...valid, nombre: "", email: "", showSupport: true })!,
-    );
+    const p = buildWebhookPayload(completo({ ...valid, nombre: "", email: "", showSupport: true }));
     expect(p).not.toHaveProperty("first_name");
     expect(p).not.toHaveProperty("email");
     expect(p.requiere_apoyo).toBe("si");

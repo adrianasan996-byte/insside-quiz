@@ -12,7 +12,7 @@ import { QUESTIONS, SECTIONS } from "./data/questions";
 import { INTERSTITIAL_1, INTERSTITIAL_2 } from "./data/interstitials";
 import { TYPE_ILLUSTRATION } from "./data/assets";
 import { computeScores, partialDominant } from "./lib/scoring";
-import { submitLead } from "./lib/storage";
+import { submitLead, submitPartialLead } from "./lib/storage";
 import { useQuizMachine } from "./hooks/useQuizMachine";
 
 const questionById = new Map(QUESTIONS.map((q) => [q.id, q]));
@@ -50,7 +50,13 @@ export default function App() {
   const slide = reduce ? 0 : m.direction * 40;
 
   function handleLeadSubmit() {
+    void submitPartialLead(m.lead);
     m.next();
+  }
+
+  function handleRestart() {
+    leadSubmitted.current = false;
+    m.restart();
   }
 
   return (
@@ -124,7 +130,7 @@ export default function App() {
           )}
 
         {step.kind === "result" && score && (
-          <ResultScreen score={score} nombre={m.lead.nombre} email={m.lead.email} onRestart={m.restart} />
+          <ResultScreen score={score} nombre={m.lead.nombre} email={m.lead.email} onRestart={handleRestart} />
         )}
       </motion.div>
     </Layout>

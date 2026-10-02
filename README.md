@@ -87,8 +87,14 @@ subescalas tengan el mismo número de ítems.
 
 ## Integración con GoHighLevel
 
-Al enviar el formulario final, el quiz guarda el resultado en `localStorage` y, si la persona dejó
-**email o WhatsApp**, hace `POST /api/lead`. Esa función serverless (`api/lead.ts`) valida los datos y
+El quiz hace `POST /api/lead` **dos veces** por persona:
+
+1. **`estado: "parcial"`** — apenas envía el formulario de contacto (tras la sección 1). Solo trae
+   contacto + `tags: quiz-ansiedad,quiz-incompleto`. Así el lead existe aunque abandone el test.
+2. **`estado: "completo"`** — al llegar al resultado. Trae todo el resultado y el tag
+   `quiz-completado`.
+
+GHL hace *upsert* por email/teléfono, así que ambos envíos caen en el mismo contacto. Esa función serverless (`api/lead.ts`) valida los datos y
 los reenvía al **Inbound Webhook** de un workflow de GHL. La URL del webhook vive solo en el
 servidor (nunca en el navegador ni en el repo).
 
@@ -97,7 +103,12 @@ servidor (nunca en el navegador ni en el repo).
 1. Vercel → proyecto `insside-quiz` → *Settings → Environment Variables* → agrega
    `GHL_WEBHOOK_URL` = la URL del trigger *Inbound Webhook* (Production y Preview).
 2. *Redeploy* para que la función la lea.
-3. En GHL, crea las *Custom Fields* de abajo, manda una prueba (completa el quiz con tu email) →
+3. **Workflow:** justo después del trigger, un *If/Else* por `estado`:
+   - `completo` → mapear campos, quitar tag `quiz-incompleto` y mandar el correo de resultados.
+   - `parcial` → crear/actualizar contacto, *Wait* (p. ej. 2 h) y luego *If/Else*: si el contacto
+     **no** tiene `quiz-completado` → seguimiento de "no terminó el test". **Sin este If/Else, el
+     correo de resultados saldría vacío con el envío parcial.**
+4. En GHL, crea las *Custom Fields* de abajo, manda una prueba (completa el quiz con tu email) →
    en el trigger del workflow, *Fetch Sample Requests* → mapea los campos.
 
 **Campos que recibe el webhook (JSON plano):**
@@ -109,6 +120,7 @@ servidor (nunca en el navegador ni en el repo).
 | `email` | `ana@ejemplo.com` | Contact → Email |
 | `phone` | `+584121234567` (E.164, WhatsApp) | Contact → Phone |
 | `source` | `test-ansiedad` | Contact → Source |
+| `estado` | `parcial` · `completo` | Condición del workflow (If/Else) |
 | `perfil` | `Patrón rumiante` | Custom Field (texto) · *Perfil de ansiedad* |
 | `perfil_key` | `rumia` · `control` · `social` · `rendimiento` · `somatica` | Condición del workflow (If/Else) |
 | `nivel` | `Sobre-alerta` | Custom Field (texto) · *Nivel de ansiedad* |
@@ -122,11 +134,12 @@ servidor (nunca en el navegador ni en el repo).
 | `nivel_mensaje` | párrafo de recomendación según el nivel | Custom Field (multilínea) · para el correo |
 | `herramienta` | `Ventana de preocupación` | Custom Field (texto) · para el correo |
 | `herramienta_como` | cómo aplicar esa herramienta | Custom Field (multilínea) · para el correo |
-| `tags` | `quiz-ansiedad,ansiedad-rumia,nivel-alerta` | Contact → Tags (Create/Update Contact) |
+| `tags` | parcial: `quiz-ansiedad,quiz-incompleto` · completo: `quiz-ansiedad,quiz-completado,ansiedad-rumia,nivel-alerta` | Contact → Tags (Create/Update Contact) |
 | `resumen` | texto multilínea | Acción *Add Note* |
 | `fecha` | ISO 8601 | Opcional |
 
-Las claves de contacto vacías (`first_name`, `email`, `phone`…) **no se envían**, para no borrar
+En el envío `parcial` solo van `first_name`, `last_name`, `email`, `phone`, `source`, `estado`,
+`tags` y `fecha`. Las claves de contacto vacías (`first_name`, `email`, `phone`…) **no se envían**, para no borrar
 datos que el contacto ya tenga en GHL. Para probar en local necesitas `vercel dev` (el `npm run dev`
 de Vite no sirve `/api`).
 

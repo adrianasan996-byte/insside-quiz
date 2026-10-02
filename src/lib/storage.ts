@@ -12,6 +12,7 @@ const RESULT_KEY = "insside_quiz_result";
 const LEAD_ENDPOINT = "/api/lead";
 
 export interface StoredPayload {
+  estado: "completo";
   nombre: string;
   email: string;
   whatsapp: string;
@@ -42,6 +43,30 @@ export function readLead(): Lead | null {
   }
 }
 
+function postLead(body: object): Promise<void> {
+  return fetch(LEAD_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    keepalive: true,
+  }).then(
+    () => undefined,
+    () => undefined, // sin conexión: no bloquea el quiz
+  );
+}
+
+/**
+ * Envía solo el contacto apenas la persona llena el formulario, para tenerla
+ * en el CRM aunque no termine el test (llega con tag `quiz-incompleto`).
+ */
+export async function submitPartialLead(lead: Lead): Promise<void> {
+  safeSet(LEAD_KEY, lead);
+  const email = lead.email.trim();
+  const whatsapp = whatsappE164(lead.whatsappPais, lead.whatsappLocal);
+  if (!email && !whatsapp) return;
+  await postLead({ estado: "parcial", nombre: lead.nombre.trim(), email, whatsapp });
+}
+
 /**
  * Guarda lead + resultado en localStorage y, si la persona dejó email o
  * WhatsApp, lo envía a /api/lead (→ CRM). Nunca lanza: la UI sigue igual
@@ -49,6 +74,7 @@ export function readLead(): Lead | null {
  */
 export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> {
   const payload: StoredPayload = {
+    estado: "completo",
     nombre: lead.nombre.trim(),
     email: lead.email.trim(),
     whatsapp: whatsappE164(lead.whatsappPais, lead.whatsappLocal),
@@ -68,14 +94,5 @@ export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> 
   // Sin forma de contactar a la persona no hay nada que mandar al CRM.
   if (!payload.email && !payload.whatsapp) return;
 
-  try {
-    await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      keepalive: true,
-    });
-  } catch {
-    /* sin conexión: el dato ya quedó en localStorage */
-  }
+  await postLead(payload);
 }

@@ -113,16 +113,32 @@ const ESPECIALISTA: Record<PerfilKey, string> = {
 type PerfilKey = keyof typeof PERFILES;
 type NivelKey = keyof typeof NIVELES;
 
-interface Lead {
+/**
+ * "parcial": se envía apenas la persona deja sus datos (antes de terminar el
+ * test), para tener el contacto aunque abandone. "completo": al ver el resultado.
+ */
+type Estado = "parcial" | "completo";
+
+interface Contacto {
   nombre: string;
   email: string;
   whatsapp: string;
+}
+
+interface LeadParcial extends Contacto {
+  estado: "parcial";
+}
+
+interface LeadCompleto extends Contacto {
+  estado: "completo";
   perfilKey: PerfilKey;
   nivelKey: NivelKey;
   puntaje: number;
   subescalas: Record<PerfilKey, number>;
   showSupport: boolean;
 }
+
+type Lead = LeadParcial | LeadCompleto;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^\+\d{8,15}$/;
@@ -155,9 +171,6 @@ export function parseLead(raw: unknown): Lead | null {
   // Sin forma de contactar a la persona no hay nada que guardar en el CRM.
   if (!email && !whatsapp) return null;
 
-  if (typeof b.perfilKey !== "string" || !(b.perfilKey in PERFILES)) return null;
-  if (typeof b.nivelKey !== "string" || !(b.nivelKey in NIVELES)) return null;
-
   const nombre =
     typeof b.nombre === "string"
       ? b.nombre
@@ -165,6 +178,13 @@ export function parseLead(raw: unknown): Lead | null {
           .trim()
           .slice(0, 80)
       : "";
+
+  // Sin estado explícito se asume "completo" (compatibilidad con clientes en caché).
+  const estado: Estado = b.estado === "parcial" ? "parcial" : "completo";
+  if (estado === "parcial") return { estado, nombre, email, whatsapp };
+
+  if (typeof b.perfilKey !== "string" || !(b.perfilKey in PERFILES)) return null;
+  if (typeof b.nivelKey !== "string" || !(b.nivelKey in NIVELES)) return null;
 
   const s = (b.subescalas && typeof b.subescalas === "object" ? b.subescalas : {}) as Record<
     string,
@@ -179,6 +199,7 @@ export function parseLead(raw: unknown): Lead | null {
   };
 
   return {
+    estado,
     nombre,
     email,
     whatsapp,
@@ -191,12 +212,44 @@ export function parseLead(raw: unknown): Lead | null {
 }
 
 /** Payload plano que recibe GoHighLevel (claves en snake_case para mapear fácil). */
+export function buildWebhookPayload(lead: LeadParcial, fecha?: string): PayloadParcial;
+export function buildWebhookPayload(lead: LeadCompleto, fecha?: string): PayloadCompleto;
+export function buildWebhookPayload(lead: Lead, fecha?: string): PayloadParcial | PayloadCompleto;
 export function buildWebhookPayload(lead: Lead, fecha = new Date().toISOString()) {
+  if (lead.estado === "parcial") return buildParcial(lead, fecha);
+  return buildCompleto(lead, fecha);
+}
+
+type PayloadParcial = ReturnType<typeof buildParcial>;
+type PayloadCompleto = ReturnType<typeof buildCompleto>;
+
+function buildContacto(lead: Lead) {
   const [firstName, ...rest] = lead.nombre.split(/\s+/).filter(Boolean);
+  // Contacto (se omiten los vacíos para no borrar datos existentes en GHL)
+  return {
+    ...(firstName ? { first_name: firstName } : {}),
+    ...(rest.length ? { last_name: rest.join(" ") } : {}),
+    ...(lead.email ? { email: lead.email } : {}),
+    ...(lead.whatsapp ? { phone: lead.whatsapp } : {}),
+    source: "test-ansiedad",
+  };
+}
+
+/** Sin campos de resultado: aún no existe y no deben pisar uno anterior en GHL. */
+function buildParcial(lead: LeadParcial, fecha: string) {
+  return {
+    ...buildContacto(lead),
+    estado: "parcial" as const,
+    tags: "quiz-ansiedad,quiz-incompleto",
+    fecha,
+  };
+}
+
+function buildCompleto(lead: LeadCompleto, fecha: string) {
   const perfil = PERFILES[lead.perfilKey];
   const nivel = NIVELES[lead.nivelKey];
 
-  const tags = ["quiz-ansiedad", `ansiedad-${lead.perfilKey}`, `nivel-${lead.nivelKey}`];
+  const tags = ["quiz-ansiedad", "quiz-completado", `ansiedad-${lead.perfilKey}`, `nivel-${lead.nivelKey}`];
   if (lead.showSupport) tags.push("quiz-requiere-apoyo");
 
   const resumen = [
@@ -213,12 +266,8 @@ export function buildWebhookPayload(lead: Lead, fecha = new Date().toISOString()
     .join("\n");
 
   return {
-    // Contacto (se omiten los vacíos para no borrar datos existentes en GHL)
-    ...(firstName ? { first_name: firstName } : {}),
-    ...(rest.length ? { last_name: rest.join(" ") } : {}),
-    ...(lead.email ? { email: lead.email } : {}),
-    ...(lead.whatsapp ? { phone: lead.whatsapp } : {}),
-    source: "test-ansiedad",
+    ...buildContacto(lead),
+    estado: "completo" as const,
     // Resultado
     perfil,
     perfil_key: lead.perfilKey,
