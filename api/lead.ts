@@ -247,12 +247,15 @@ function buildContacto(lead: Lead) {
   };
 }
 
+/** Un solo tag para todos; quién terminó se ve por los campos de resultado. */
+const TAG = "quiz-ansiedad";
+
 /** Sin campos de resultado: aún no existe y no deben pisar uno anterior en GHL. */
 function buildParcial(lead: LeadParcial, fecha: string) {
   return {
     ...buildContacto(lead),
     estado: "parcial" as const,
-    tags: "quiz-ansiedad,quiz-incompleto",
+    tags: TAG,
     fecha,
   };
 }
@@ -261,8 +264,6 @@ function buildCompleto(lead: LeadCompleto, fecha: string) {
   const perfil = PERFILES[lead.perfilKey];
   const nivel = NIVELES[lead.nivelKey];
 
-  const tags = ["quiz-ansiedad", "quiz-completado", `ansiedad-${lead.perfilKey}`, `nivel-${lead.nivelKey}`];
-  if (lead.showSupport) tags.push("quiz-requiere-apoyo");
 
   const resumen = [
     "Test de ansiedad (test.insside.co)",
@@ -300,7 +301,7 @@ function buildCompleto(lead: LeadCompleto, fecha: string) {
     herramienta: TEXTO_PERFIL[lead.perfilKey].herramienta,
     herramienta_como: TEXTO_PERFIL[lead.perfilKey].herramientaComo,
     // Ayudas para el workflow
-    tags: tags.join(","),
+    tags: TAG,
     resumen,
     fecha,
   };

@@ -58,7 +58,7 @@ function postLead(body: object): Promise<void> {
 
 /**
  * Envía solo el contacto apenas la persona llena el formulario, para tenerla
- * en el CRM aunque no termine el test (llega con tag `quiz-incompleto`).
+ * en el CRM aunque no termine el test (sin correos: va a GHL_WEBHOOK_URL_PARCIAL).
  */
 export async function submitPartialLead(lead: Lead): Promise<void> {
   safeSet(LEAD_KEY, lead);

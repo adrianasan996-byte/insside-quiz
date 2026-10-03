@@ -91,16 +91,15 @@ El quiz hace `POST /api/lead` **dos veces** por persona, y cada envío va a **un
 
 1. **Parcial** — apenas envía el formulario de contacto (tras la sección 1). Va a
    `GHL_WEBHOOK_URL_PARCIAL` (**opcional**): un workflow que solo guarda el contacto, sin correos.
-   Trae solo contacto + `tags: quiz-ansiedad,quiz-incompleto`. Si la variable no existe, no se
+   Trae solo contacto + `tags: quiz-ansiedad`. Si la variable no existe, no se
    envía a ningún lado.
 2. **Completo** — al llegar al resultado. Va a `GHL_WEBHOOK_URL`: el workflow de resultados y la
    secuencia de correos. Ese workflow **nunca** recibe envíos parciales, así que no necesita
    condiciones.
 
-GHL hace *upsert* por email/teléfono, así que ambos envíos caen en el mismo contacto. Para ver
-quién no terminó: Smart List con tag `quiz-incompleto` y **sin** tag `quiz-completado` (mapea
-`{{inboundWebhookRequest.tags}}` en el Create contact de ambos workflows, o agrega esos tags con
-*Add Tag*).
+GHL hace *upsert* por email/teléfono, así que ambos envíos caen en el mismo contacto. Todos llevan
+un solo tag, `quiz-ansiedad`. Para ver quién no terminó: Smart List con tag `quiz-ansiedad` y el
+campo *Perfil de ansiedad* vacío (solo se llena al terminar).
 
 **Configuración (una vez):**
 
@@ -108,7 +107,7 @@ quién no terminó: Smart List con tag `quiz-incompleto` y **sin** tag `quiz-com
    `GHL_WEBHOOK_URL` = la URL del trigger *Inbound Webhook* (Production y Preview).
 2. *Redeploy* para que la función la lea.
 3. *(Opcional)* Para guardar a quienes no terminan: crea un **segundo workflow** con su propio
-   *Inbound Webhook* → *Create contact* (nombre, email, teléfono) → *Add Tag* `quiz-incompleto`.
+   *Inbound Webhook* → *Create contact* (nombre, apellido, email, teléfono) → *Add Tag* `quiz-ansiedad`.
    Sin correos. Pon su URL en `GHL_WEBHOOK_URL_PARCIAL` y haz *Redeploy*.
 4. En GHL, crea las *Custom Fields* de abajo, manda una prueba (completa el quiz con tu email) →
    en el trigger del workflow, *Fetch Sample Requests* → mapea los campos.
@@ -136,7 +135,7 @@ quién no terminó: Smart List con tag `quiz-incompleto` y **sin** tag `quiz-com
 | `nivel_mensaje` | párrafo de recomendación según el nivel | Custom Field (multilínea) · para el correo |
 | `herramienta` | `Ventana de preocupación` | Custom Field (texto) · para el correo |
 | `herramienta_como` | cómo aplicar esa herramienta | Custom Field (multilínea) · para el correo |
-| `tags` | parcial: `quiz-ansiedad,quiz-incompleto` · completo: `quiz-ansiedad,quiz-completado,ansiedad-rumia,nivel-alerta` | Contact → Tags (Create/Update Contact) |
+| `tags` | `quiz-ansiedad` | Contact → Tags (Create/Update Contact) |
 | `resumen` | texto multilínea | Acción *Add Note* |
 | `fecha` | ISO 8601 | Opcional |
 

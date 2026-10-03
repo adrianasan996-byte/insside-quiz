@@ -121,7 +121,7 @@ describe("buildWebhookPayload", () => {
       requiere_apoyo: "no",
       especialista_recomendado: "Valentina Tello",
       estado: "completo",
-      tags: "quiz-ansiedad,quiz-completado,ansiedad-rumia,nivel-alerta",
+      tags: "quiz-ansiedad",
     });
   });
 
@@ -144,7 +144,7 @@ describe("buildWebhookPayload", () => {
       phone: "+584121234567",
       source: "test-ansiedad",
       estado: "parcial",
-      tags: "quiz-ansiedad,quiz-incompleto",
+      tags: "quiz-ansiedad",
       fecha: "2026-01-01T00:00:00.000Z",
     });
   });
@@ -158,12 +158,12 @@ describe("buildWebhookPayload", () => {
     expect(p.herramienta_como).toBe(RESULTS.rumia.herramientas[0].como);
   });
 
-  it("omite claves de contacto vacías y agrega tag de apoyo", () => {
+  it("omite claves de contacto vacías y marca requiere_apoyo", () => {
     const p = buildWebhookPayload(completo({ ...valid, nombre: "", email: "", showSupport: true }));
     expect(p).not.toHaveProperty("first_name");
     expect(p).not.toHaveProperty("email");
     expect(p.requiere_apoyo).toBe("si");
-    expect(p.tags).toContain("quiz-requiere-apoyo");
+    expect(p.tags).toBe("quiz-ansiedad");
   });
 });
 
