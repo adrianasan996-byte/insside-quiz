@@ -13,6 +13,7 @@ import { INTERSTITIAL_1, INTERSTITIAL_2 } from "./data/interstitials";
 import { TYPE_ILLUSTRATION } from "./data/assets";
 import { computeScores, partialDominant } from "./lib/scoring";
 import { submitLead, submitPartialLead } from "./lib/storage";
+import { track } from "./lib/analytics";
 import { useQuizMachine } from "./hooks/useQuizMachine";
 
 const questionById = new Map(QUESTIONS.map((q) => [q.id, q]));
@@ -39,6 +40,7 @@ export default function App() {
     if (score && !leadSubmitted.current) {
       leadSubmitted.current = true;
       void submitLead(m.lead, score);
+      track("quiz_completado", { perfil: score.primary, nivel: score.level.key });
     }
   }, [score, m.lead]);
 
@@ -49,8 +51,14 @@ export default function App() {
 
   const slide = reduce ? 0 : m.direction * 40;
 
+  function handleStart() {
+    track("quiz_inicio");
+    m.next();
+  }
+
   function handleLeadSubmit() {
     void submitPartialLead(m.lead);
+    track("quiz_lead");
     m.next();
   }
 
@@ -87,7 +95,7 @@ export default function App() {
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         className="w-full"
       >
-        {step.kind === "intro" && <IntroScreen onStart={m.next} />}
+        {step.kind === "intro" && <IntroScreen onStart={handleStart} />}
 
           {step.kind === "section-intro" && (
             <SectionIntro section={SECTIONS[step.sectionIndex]} onContinue={m.next} />
