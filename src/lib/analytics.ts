@@ -3,7 +3,7 @@
  * público por diseño: viaja en el HTML de cualquier sitio con GA.
  * Vacío = GA desactivado (no se carga nada).
  */
-const GA_ID = "";
+const GA_ID = "G-J4S881CG4W";
 
 type Gtag = (...args: unknown[]) => void;
 declare global {
