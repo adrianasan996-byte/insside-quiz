@@ -202,6 +202,7 @@ describe("handler", () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     delete process.env.GHL_WEBHOOK_URL;
+    delete process.env.GHL_WEBHOOK_URL_PARCIAL;
   });
 
   it("405 si no es POST", async () => {
@@ -234,6 +235,23 @@ describe("handler", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe(WEBHOOK);
     expect(JSON.parse(init.body)).toMatchObject({ email: "ana@ejemplo.com", perfil_key: "rumia" });
+  });
+
+  it("parcial sin GHL_WEBHOOK_URL_PARCIAL: 200 y no llama a ningún webhook", async () => {
+    const res = makeRes();
+    await handler({ method: "POST", body: { ...valid, estado: "parcial" } }, res);
+    expect(res.code).toBe(200);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("parcial va solo al webhook de parciales, nunca al de resultados", async () => {
+    process.env.GHL_WEBHOOK_URL_PARCIAL = "https://example.test/hooks/parcial";
+    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+    const res = makeRes();
+    await handler({ method: "POST", body: { ...valid, estado: "parcial" } }, res);
+    expect(res.code).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toBe("https://example.test/hooks/parcial");
   });
 
   it("502 si el webhook falla, sin filtrar detalles", async () => {

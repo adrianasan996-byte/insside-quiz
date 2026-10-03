@@ -87,27 +87,29 @@ subescalas tengan el mismo número de ítems.
 
 ## Integración con GoHighLevel
 
-El quiz hace `POST /api/lead` **dos veces** por persona:
+El quiz hace `POST /api/lead` **dos veces** por persona, y cada envío va a **un webhook distinto**:
 
-1. **`estado: "parcial"`** — apenas envía el formulario de contacto (tras la sección 1). Solo trae
-   contacto + `tags: quiz-ansiedad,quiz-incompleto`. Así el lead existe aunque abandone el test.
-2. **`estado: "completo"`** — al llegar al resultado. Trae todo el resultado y el tag
-   `quiz-completado`.
+1. **Parcial** — apenas envía el formulario de contacto (tras la sección 1). Va a
+   `GHL_WEBHOOK_URL_PARCIAL` (**opcional**): un workflow que solo guarda el contacto, sin correos.
+   Trae solo contacto + `tags: quiz-ansiedad,quiz-incompleto`. Si la variable no existe, no se
+   envía a ningún lado.
+2. **Completo** — al llegar al resultado. Va a `GHL_WEBHOOK_URL`: el workflow de resultados y la
+   secuencia de correos. Ese workflow **nunca** recibe envíos parciales, así que no necesita
+   condiciones.
 
-GHL hace *upsert* por email/teléfono, así que ambos envíos caen en el mismo contacto. Esa función serverless (`api/lead.ts`) valida los datos y
-los reenvía al **Inbound Webhook** de un workflow de GHL. La URL del webhook vive solo en el
-servidor (nunca en el navegador ni en el repo).
+GHL hace *upsert* por email/teléfono, así que ambos envíos caen en el mismo contacto. Para ver
+quién no terminó: Smart List con tag `quiz-incompleto` y **sin** tag `quiz-completado` (mapea
+`{{inboundWebhookRequest.tags}}` en el Create contact de ambos workflows, o agrega esos tags con
+*Add Tag*).
 
 **Configuración (una vez):**
 
 1. Vercel → proyecto `insside-quiz` → *Settings → Environment Variables* → agrega
    `GHL_WEBHOOK_URL` = la URL del trigger *Inbound Webhook* (Production y Preview).
 2. *Redeploy* para que la función la lea.
-3. **Workflow:** justo después del trigger, un *If/Else* por `estado`:
-   - `completo` → mapear campos, quitar tag `quiz-incompleto` y mandar el correo de resultados.
-   - `parcial` → crear/actualizar contacto, *Wait* (p. ej. 2 h) y luego *If/Else*: si el contacto
-     **no** tiene `quiz-completado` → seguimiento de "no terminó el test". **Sin este If/Else, el
-     correo de resultados saldría vacío con el envío parcial.**
+3. *(Opcional)* Para guardar a quienes no terminan: crea un **segundo workflow** con su propio
+   *Inbound Webhook* → *Create contact* (nombre, email, teléfono) → *Add Tag* `quiz-incompleto`.
+   Sin correos. Pon su URL en `GHL_WEBHOOK_URL_PARCIAL` y haz *Redeploy*.
 4. En GHL, crea las *Custom Fields* de abajo, manda una prueba (completa el quiz con tu email) →
    en el trigger del workflow, *Fetch Sample Requests* → mapea los campos.
 

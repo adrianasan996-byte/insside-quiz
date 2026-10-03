@@ -2,7 +2,9 @@
  * Endpoint serverless (Vercel) que recibe el lead del quiz, lo valida y lo
  * reenvía al webhook de GoHighLevel (trigger "Inbound Webhook" de un workflow).
  *
- * La URL del webhook vive solo en la variable de entorno GHL_WEBHOOK_URL del
+ * Tests completos → GHL_WEBHOOK_URL (workflow de resultados). Envíos parciales
+ * (dejó sus datos, aún sin terminar) → GHL_WEBHOOK_URL_PARCIAL, opcional.
+ * Las URLs de los webhooks viven solo en variables de entorno del
  * servidor: nunca llega al navegador ni al repo.
  *
  * Este archivo es autocontenido a propósito (sin imports de ../src) para no
@@ -310,20 +312,32 @@ export default async function handler(req: Req, res: Res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const lead = parseLead(req.body);
+  if (!lead) return res.status(400).json({ error: "Datos inválidos" });
+
+  // Cada estado va a su propio workflow: el de resultados (con correos) solo
+  // recibe tests completos, así nunca le llega un envío parcial.
+  if (lead.estado === "parcial") {
+    const parcialUrl = process.env.GHL_WEBHOOK_URL_PARCIAL;
+    // Opcional: sin workflow de parciales configurado, simplemente no se envía.
+    if (!parcialUrl) return res.status(200).json({ ok: true, omitido: true });
+    return forward(parcialUrl, buildWebhookPayload(lead), res);
+  }
+
   const webhookUrl = process.env.GHL_WEBHOOK_URL;
   if (!webhookUrl) {
     console.error("[lead] Falta GHL_WEBHOOK_URL en el entorno");
     return res.status(500).json({ error: "CRM no configurado" });
   }
+  return forward(webhookUrl, buildWebhookPayload(lead), res);
+}
 
-  const lead = parseLead(req.body);
-  if (!lead) return res.status(400).json({ error: "Datos inválidos" });
-
+async function forward(url: string, payload: object, res: Res) {
   try {
-    const r = await fetch(webhookUrl, {
+    const r = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(buildWebhookPayload(lead)),
+      body: JSON.stringify(payload),
     });
     if (!r.ok) {
       console.error("[lead] GHL webhook error:", r.status, await r.text().catch(() => ""));
