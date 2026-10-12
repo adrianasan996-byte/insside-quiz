@@ -1,4 +1,4 @@
-import type { Lead, ScoreResult } from "../types";
+import type { Lead, ScoreResult, Specialist } from "../types";
 import { RESULTS } from "../data/results";
 import { whatsappE164 } from "./phone";
 
@@ -24,6 +24,8 @@ export interface StoredPayload {
   puntaje: number;
   subescalas: ScoreResult["subscales"];
   showSupport: boolean;
+  /** Slugs de las 2 especialistas mostradas, en orden. */
+  especialistas: string[];
   fecha: string;
 }
 
@@ -79,7 +81,11 @@ export async function submitPartialLead(lead: Lead): Promise<void> {
  * WhatsApp, lo envía a /api/lead (→ CRM). Nunca lanza: la UI sigue igual
  * aunque el envío falle.
  */
-export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> {
+export async function submitLead(
+  lead: Lead,
+  score: ScoreResult,
+  especialistas: readonly Specialist[],
+): Promise<void> {
   const payload: StoredPayload = {
     estado: "completo",
     nombre: lead.nombre.trim(),
@@ -93,6 +99,7 @@ export async function submitLead(lead: Lead, score: ScoreResult): Promise<void> 
     puntaje: score.total,
     subescalas: score.subscales,
     showSupport: score.showSupport,
+    especialistas: especialistas.map((e) => e.slug),
     fecha: new Date().toISOString(),
   };
 

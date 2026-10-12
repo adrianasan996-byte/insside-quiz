@@ -51,7 +51,7 @@ Todo el texto vive en `src/data/` — no hace falta tocar componentes:
 | `src/data/questions.ts`     | Las 20 preguntas, las 5 secciones y la escala Likert                      |
 | `src/data/interstitials.ts` | Las 2 pantallas informativas (una variante por patrón dominante)          |
 | `src/data/results.ts`       | Mini-diagnóstico, herramientas, copy por nivel, secciones de lectura, fuentes |
-| `src/data/specialists.ts`   | Especialistas, qué patrón mapea a quién, y el mensaje pre-llenado de WhatsApp |
+| `src/data/specialists.ts`   | Especialistas, pool por patrón (se eligen 2 al azar), y el mensaje pre-llenado de WhatsApp |
 
 ### Añadir o cambiar una pregunta
 
@@ -129,7 +129,8 @@ campo *Perfil de ansiedad* vacío (solo se llena al terminar).
 | `puntaje` | `40` (0–100) | Custom Field (número) · *Puntaje ansiedad* |
 | `score_rumia` … `score_somatica` | `78` (0–100 cada uno) | Custom Fields (número), opcional |
 | `requiere_apoyo` | `si` / `no` | Condición → tarea/alerta de seguimiento prioritario |
-| `especialista_recomendado` | `Valentina Tello` | Custom Field (texto) · *Especialista sugerido* |
+| `especialista_recomendado` | `Paty Romero` | Custom Field (texto) · *Especialista sugerida* (psicóloga) |
+| `especialista_alternativo` | `Malena Lum` | Custom Field (texto) · *Especialista alternativa* (coach en calma/alerta, psicóloga en sobrecarga/alarma) |
 | `perfil_descripcion` | párrafo «Según tus respuestas…» del perfil | Custom Field (multilínea) · para el correo |
 | `nivel_titulo` | `La ansiedad ya está pidiendo un poco más de atención` | Custom Field (texto) · para el correo |
 | `nivel_mensaje` | párrafo de recomendación según el nivel | Custom Field (multilínea) · para el correo |

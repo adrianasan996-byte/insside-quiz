@@ -13,6 +13,7 @@ import { INTERSTITIAL_1, INTERSTITIAL_2 } from "./data/interstitials";
 import { TYPE_ILLUSTRATION } from "./data/assets";
 import { computeScores, partialDominant } from "./lib/scoring";
 import { submitLead, submitPartialLead } from "./lib/storage";
+import { pickSpecialists } from "./data/specialists";
 import { track } from "./lib/analytics";
 import { useQuizMachine } from "./hooks/useQuizMachine";
 
@@ -31,18 +32,24 @@ export default function App() {
     [step.kind, m.answers],
   );
 
+  // Se eligen una sola vez por resultado: lo que ve la persona es lo que llega al CRM.
+  const especialistas = useMemo(
+    () => (score ? pickSpecialists(score.primary, score.level.key) : null),
+    [score],
+  );
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [m.stepIndex]);
 
   const leadSubmitted = useRef(false);
   useEffect(() => {
-    if (score && !leadSubmitted.current) {
+    if (score && especialistas && !leadSubmitted.current) {
       leadSubmitted.current = true;
-      void submitLead(m.lead, score);
+      void submitLead(m.lead, score, especialistas);
       track("quiz_completado", { perfil: score.primary, nivel: score.level.key });
     }
-  }, [score, m.lead]);
+  }, [score, especialistas, m.lead]);
 
   const showProgress =
     step.kind === "section-intro" ||
@@ -137,8 +144,8 @@ export default function App() {
             <LeadCapture lead={m.lead} onChange={m.setLead} onSubmit={handleLeadSubmit} />
           )}
 
-        {step.kind === "result" && score && (
-          <ResultScreen score={score} nombre={m.lead.nombre} email={m.lead.email} onRestart={handleRestart} />
+        {step.kind === "result" && score && especialistas && (
+          <ResultScreen score={score} especialistas={especialistas} nombre={m.lead.nombre} email={m.lead.email} onRestart={handleRestart} />
         )}
       </motion.div>
     </Layout>

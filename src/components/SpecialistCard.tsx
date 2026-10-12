@@ -1,20 +1,20 @@
-import {
-  INSSIDE_ESPECIALISTAS_URL,
-  specialistFor,
-  whatsappLink,
-} from "../data/specialists";
-import type { AnxietyType } from "../types";
+import { INSSIDE_ESPECIALISTAS_URL, perfilUrl, whatsappLink } from "../data/specialists";
+import type { Specialist } from "../types";
 
 interface SpecialistCardProps {
-  primary: AnxietyType;
+  especialistas: readonly [Specialist, Specialist];
   perfil: string;
   nivel: string;
   nombre?: string;
 }
 
-export function SpecialistCard({ primary, perfil, nivel, nombre }: SpecialistCardProps) {
-  const esp = specialistFor(primary);
-  const wa = whatsappLink({ especialista: esp.nombre, perfil, nivel, nombre });
+export function SpecialistCard({ especialistas, perfil, nivel, nombre }: SpecialistCardProps) {
+  const wa = whatsappLink({
+    especialista: especialistas.map((e) => e.nombre).join(" o "),
+    perfil,
+    nivel,
+    nombre,
+  });
 
   return (
     <div className="rounded-4xl border border-natural bg-natural p-6 sm:p-7">
@@ -28,22 +28,33 @@ export function SpecialistCard({ primary, perfil, nivel, nombre }: SpecialistCar
         Por tu perfil, dentro de Insside encaja especialmente el trabajo con:
       </p>
 
-      <div className="mt-4 flex items-center gap-4 rounded-2xl border border-natural bg-white p-4">
-        <div
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-sans text-lg font-bold text-paper"
-          style={{ backgroundColor: esp.color }}
-        >
-          {esp.iniciales}
-        </div>
-        <div className="min-w-0">
-          <p className="font-sans text-[15px] font-semibold text-ink">{esp.nombre}</p>
-          <p className="font-sans text-[13px] text-ink-soft">{esp.rol}</p>
-          <p className="mt-1 font-sans text-[13px] leading-snug text-ink-soft">{esp.enfoque}</p>
-          <p className="mt-1 font-sans text-xs text-ink-faint">
-            Sesiones desde ${esp.precioUSD} USD · en español · online
-          </p>
-        </div>
-      </div>
+      <ul className="mt-4 flex flex-col gap-3">
+        {especialistas.map((esp) => (
+          <li key={esp.slug}>
+            <a
+              href={perfilUrl(esp.slug)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-4 rounded-2xl border border-natural bg-white p-4 transition-colors hover:border-salvia"
+            >
+              <div
+                className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-sans text-lg font-bold text-paper"
+                style={{ backgroundColor: esp.color }}
+              >
+                {esp.iniciales}
+              </div>
+              <div className="min-w-0">
+                <p className="font-sans text-[15px] font-semibold text-ink">{esp.nombre}</p>
+                <p className="font-sans text-[13px] text-ink-soft">{esp.rol}</p>
+                <p className="mt-1 font-sans text-[13px] leading-snug text-ink-soft">{esp.enfoque}</p>
+                <p className="mt-1 font-sans text-xs text-ink-faint">
+                  Sesiones desde ${esp.precioUSD} USD · en español · online · Ver perfil →
+                </p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
 
       <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
         <a

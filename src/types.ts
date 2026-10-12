@@ -89,4 +89,6 @@ export interface Specialist {
   iniciales: string;
   /** Color de fondo del avatar (token tailwind hex). */
   color: string;
+  /** Psicóloga o coach: las coaches no se recomiendan en sobrecarga/alarma. */
+  tipo: "psicologia" | "coaching";
 }

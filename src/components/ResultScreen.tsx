@@ -10,7 +10,7 @@ import {
   SUPPORT_BOX,
 } from "../data/results";
 import { whatsappLink } from "../data/specialists";
-import type { ScoreResult } from "../types";
+import type { ScoreResult, Specialist } from "../types";
 import { ILLUSTRATION } from "../data/assets";
 import { ScoreDial } from "./ScoreDial";
 import { TypeBars, TYPE_COLOR } from "./TypeBars";
@@ -18,6 +18,7 @@ import { SpecialistCard } from "./SpecialistCard";
 
 interface ResultScreenProps {
   score: ScoreResult;
+  especialistas: readonly [Specialist, Specialist];
   nombre: string;
   /** Correo al que se envió el resultado (vacío si no lo dejó). */
   email: string;
@@ -31,7 +32,7 @@ const fade = {
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-export function ResultScreen({ score, nombre, email, onRestart }: ResultScreenProps) {
+export function ResultScreen({ score, especialistas, nombre, email, onRestart }: ResultScreenProps) {
   const [copied, setCopied] = useState(false);
   const primary = RESULTS[score.primary];
   const secondary = RESULTS[score.secondary];
@@ -256,7 +257,7 @@ export function ResultScreen({ score, nombre, email, onRestart }: ResultScreenPr
       {/* ── Especialista ── */}
       <motion.section {...fade} className="mt-4">
         <SpecialistCard
-          primary={score.primary}
+          especialistas={especialistas}
           perfil={primary.titulo}
           nivel={score.level.label}
           nombre={nombreLimpio || undefined}

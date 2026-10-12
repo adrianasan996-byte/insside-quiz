@@ -4,9 +4,19 @@ import handler, {
   PERFILES,
   TEXTO_NIVEL,
   TEXTO_PERFIL,
+  ESPECIALISTAS,
+  POOL,
+  SOLO_PSICOLOGIA,
   buildWebhookPayload,
   parseLead,
+  resolverEspecialistas,
 } from "./lead";
+import {
+  POOL_BY_TYPE,
+  SOLO_PSICOLOGIA as SOLO_PSICOLOGIA_SRC,
+  SPECIALISTS,
+  pickSpecialists,
+} from "../src/data/specialists";
 import { LEVEL_COPY, RESULTS } from "../src/data/results";
 import { SEVERITY_LEVELS } from "../src/lib/scoring";
 
@@ -260,5 +270,69 @@ describe("handler", () => {
     await handler({ method: "POST", body: valid }, res);
     expect(res.code).toBe(502);
     expect(JSON.stringify(res.body)).not.toContain("secret");
+  });
+});
+
+describe("especialistas", () => {
+  const slug = (k: keyof typeof SPECIALISTS) => SPECIALISTS[k].slug;
+
+  it("api y src tienen los mismos pools, nombres y regla de nivel", () => {
+    for (const [perfil, pool] of Object.entries(POOL_BY_TYPE)) {
+      expect(POOL[perfil as keyof typeof POOL]).toEqual({
+        psicologia: pool.psicologia.map(slug),
+        coaching: pool.coaching.map(slug),
+      });
+    }
+    for (const e of Object.values(SPECIALISTS)) {
+      expect(ESPECIALISTAS[e.slug as keyof typeof ESPECIALISTAS]).toBe(e.nombre);
+    }
+    expect(SOLO_PSICOLOGIA).toEqual(SOLO_PSICOLOGIA_SRC);
+  });
+
+  it("cada pool respeta el tipo y usa a todas las especialistas", () => {
+    const usadas = new Set<string>();
+    for (const pool of Object.values(POOL_BY_TYPE)) {
+      pool.psicologia.forEach((k) => expect(SPECIALISTS[k].tipo).toBe("psicologia"));
+      pool.coaching.forEach((k) => expect(SPECIALISTS[k].tipo).toBe("coaching"));
+      expect(pool.psicologia.length).toBeGreaterThanOrEqual(2);
+      [...pool.psicologia, ...pool.coaching].forEach((k) => usadas.add(k));
+    }
+    expect([...usadas].sort()).toEqual(Object.keys(SPECIALISTS).sort());
+  });
+
+  it("calma/alerta: psicóloga + coach; sobrecarga/alarma: dos psicólogas distintas", () => {
+    for (const perfil of Object.keys(POOL_BY_TYPE) as (keyof typeof POOL_BY_TYPE)[]) {
+      for (const nivel of Object.keys(NIVELES) as (keyof typeof NIVELES)[]) {
+        for (const r of [0, 0.34, 0.67, 0.999]) {
+          const [a, b] = pickSpecialists(perfil, nivel, () => r);
+          expect(a.tipo).toBe("psicologia");
+          expect(b.tipo).toBe(SOLO_PSICOLOGIA.includes(nivel) ? "psicologia" : "coaching");
+          expect(a.slug).not.toBe(b.slug);
+          // Lo que elige el cliente siempre pasa la validación del servidor.
+          expect(resolverEspecialistas(perfil, nivel, [a.slug, b.slug])).toEqual([a.slug, b.slug]);
+        }
+      }
+    }
+  });
+
+  it("rechaza especialistas fuera del pool o coaches en niveles altos", () => {
+    expect(resolverEspecialistas("rumia", "alerta", ["malena-lum", "steph-de-gregorio"])).toEqual([
+      "valentina-tello",
+      "daniela-pena",
+    ]);
+    expect(resolverEspecialistas("rumia", "alarma", ["paty-romero", "daniela-pena"])).toEqual([
+      "valentina-tello",
+      "paty-romero",
+    ]);
+    expect(resolverEspecialistas("social", "calma", "x")).toEqual(["luisa-reyes", "barbara-serrano"]);
+  });
+
+  it("manda ambas especialistas a GHL", () => {
+    const p = buildWebhookPayload(
+      completo({ ...valid, perfilKey: "somatica", especialistas: ["paty-romero", "malena-lum"] }),
+    );
+    expect(p.especialista_recomendado).toBe("Paty Romero");
+    expect(p.especialista_alternativo).toBe("Malena Lum");
+    expect(p.resumen).toContain("Especialistas sugeridas: Paty Romero / Malena Lum");
   });
 });

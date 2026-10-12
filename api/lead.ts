@@ -104,13 +104,70 @@ export const TEXTO_NIVEL: Record<NivelKey, { titulo: string; mensaje: string }> 
   },
 };
 
-const ESPECIALISTA: Record<PerfilKey, string> = {
-  rumia: "Valentina Tello",
-  somatica: "Valentina Tello",
-  social: "Valentina Tello",
-  control: "Luisa Reyes",
-  rendimiento: "Barbara Serrano",
+// Mantener sincronizado con src/data/specialists.ts (api/lead.test.ts falla si se desalinean)
+export const ESPECIALISTAS = {
+  "valentina-tello": "Valentina Tello",
+  "luisa-reyes": "Luisa Reyes",
+  "paty-romero": "Paty Romero",
+  "barbara-serrano": "Barbara Serrano",
+  "daniela-pena": "Daniela Peña",
+  "steph-de-gregorio": "Steph De Gregorio",
+  "malena-lum": "Malena Lum",
+} as const;
+
+type EspecialistaSlug = keyof typeof ESPECIALISTAS;
+
+export const POOL: Record<
+  PerfilKey,
+  { psicologia: EspecialistaSlug[]; coaching: EspecialistaSlug[] }
+> = {
+  rumia: {
+    psicologia: ["valentina-tello", "paty-romero", "luisa-reyes"],
+    coaching: ["daniela-pena", "steph-de-gregorio"],
+  },
+  control: {
+    psicologia: ["luisa-reyes", "valentina-tello", "paty-romero"],
+    coaching: ["daniela-pena", "steph-de-gregorio"],
+  },
+  social: {
+    psicologia: ["luisa-reyes", "valentina-tello", "paty-romero"],
+    coaching: ["barbara-serrano", "daniela-pena"],
+  },
+  rendimiento: {
+    psicologia: ["valentina-tello", "luisa-reyes", "paty-romero"],
+    coaching: ["barbara-serrano", "steph-de-gregorio"],
+  },
+  somatica: {
+    psicologia: ["paty-romero", "valentina-tello", "luisa-reyes"],
+    coaching: ["malena-lum"],
+  },
 };
+
+/** En estos niveles solo se recomiendan psicólogas. */
+export const SOLO_PSICOLOGIA: readonly NivelKey[] = ["sobrecarga", "alarma"];
+
+/**
+ * Valida las 2 especialistas que mostró el cliente contra el pool del perfil y
+ * nivel. Si algo no cuadra (cliente viejo o manipulado), usa las primeras del pool.
+ */
+export function resolverEspecialistas(
+  perfil: PerfilKey,
+  nivel: NivelKey,
+  raw: unknown,
+): [EspecialistaSlug, EspecialistaSlug] {
+  const pool = POOL[perfil];
+  const soloPsico = SOLO_PSICOLOGIA.includes(nivel);
+  const segundaPool = soloPsico ? pool.psicologia : pool.coaching;
+  const fallback: [EspecialistaSlug, EspecialistaSlug] = [
+    pool.psicologia[0],
+    soloPsico ? pool.psicologia[1] : pool.coaching[0],
+  ];
+  if (!Array.isArray(raw) || raw.length !== 2) return fallback;
+  const [a, b] = raw as unknown[];
+  const okA = pool.psicologia.includes(a as EspecialistaSlug);
+  const okB = segundaPool.includes(b as EspecialistaSlug) && a !== b;
+  return okA && okB ? [a as EspecialistaSlug, b as EspecialistaSlug] : fallback;
+}
 
 type PerfilKey = keyof typeof PERFILES;
 type NivelKey = keyof typeof NIVELES;
@@ -139,6 +196,7 @@ interface LeadCompleto extends Contacto {
   puntaje: number;
   subescalas: Record<PerfilKey, number>;
   showSupport: boolean;
+  especialistas: [EspecialistaSlug, EspecialistaSlug];
 }
 
 type Lead = LeadParcial | LeadCompleto;
@@ -217,6 +275,11 @@ export function parseLead(raw: unknown): Lead | null {
     puntaje: pct(b.puntaje),
     subescalas,
     showSupport: b.showSupport === true,
+    especialistas: resolverEspecialistas(
+      b.perfilKey as PerfilKey,
+      b.nivelKey as NivelKey,
+      b.especialistas,
+    ),
   };
 }
 
@@ -263,6 +326,7 @@ function buildParcial(lead: LeadParcial, fecha: string) {
 function buildCompleto(lead: LeadCompleto, fecha: string) {
   const perfil = PERFILES[lead.perfilKey];
   const nivel = NIVELES[lead.nivelKey];
+  const [esp1, esp2] = lead.especialistas.map((slug) => ESPECIALISTAS[slug]);
 
 
   const resumen = [
@@ -272,7 +336,7 @@ function buildCompleto(lead: LeadCompleto, fecha: string) {
     `Desglose: ${(Object.keys(PERFILES) as PerfilKey[])
       .map((k) => `${PERFILES[k]} ${lead.subescalas[k]}%`)
       .join(" · ")}`,
-    `Especialista sugerido: ${ESPECIALISTA[lead.perfilKey]}`,
+    `Especialistas sugeridas: ${esp1} / ${esp2}`,
     lead.showSupport ? "⚠️ Marcó señales que ameritan seguimiento pronto." : "",
   ]
     .filter(Boolean)
@@ -293,7 +357,8 @@ function buildCompleto(lead: LeadCompleto, fecha: string) {
     score_rendimiento: lead.subescalas.rendimiento,
     score_somatica: lead.subescalas.somatica,
     requiere_apoyo: lead.showSupport ? "si" : "no",
-    especialista_recomendado: ESPECIALISTA[lead.perfilKey],
+    especialista_recomendado: esp1,
+    especialista_alternativo: esp2,
     // Textos listos para el correo de resultados
     perfil_descripcion: TEXTO_PERFIL[lead.perfilKey].descripcion,
     nivel_titulo: TEXTO_NIVEL[lead.nivelKey].titulo,
