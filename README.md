@@ -5,7 +5,7 @@
 
 El usuario responde 20 preguntas repartidas en 5 secciones, con dos pantallas informativas
 dinámicas por el camino. Al final obtiene un **puntaje de severidad (0–100)**, su **patrón de
-ansiedad dominante** (de 5 posibles), un **mini-diagnóstico**, **3 herramientas** con respaldo en
+ansiedad dominante** (de 5 posibles), **3 herramientas** con respaldo en
 TCC/ACT y la **recomendación de un especialista de Insside** con CTA a WhatsApp.
 
 Inspirado en el formato del [anxiety test de Grow Therapy](https://growtherapy.com/mental-health-tests/anxiety-test/):
@@ -50,7 +50,7 @@ Todo el texto vive en `src/data/` — no hace falta tocar componentes:
 | --------------------------- | ------------------------------------------------------------------------- |
 | `src/data/questions.ts`     | Las 20 preguntas, las 5 secciones y la escala Likert                      |
 | `src/data/interstitials.ts` | Las 2 pantallas informativas (una variante por patrón dominante)          |
-| `src/data/results.ts`       | Mini-diagnóstico, herramientas, copy por nivel, secciones de lectura, fuentes |
+| `src/data/results.ts`       | Descripción del perfil, herramientas, copy por nivel, secciones de lectura, fuentes |
 | `src/data/specialists.ts`   | Especialistas, qué patrón mapea a quién, y el mensaje pre-llenado de WhatsApp |
 
 ### Añadir o cambiar una pregunta

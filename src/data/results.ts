@@ -16,7 +16,7 @@ export interface TypeResult {
   tagline: string;
   /** Un párrafo de reconocimiento: "esto eres tú". */
   reconocimiento: string;
-  /** Mini-diagnóstico: 2-3 párrafos, psicología accesible. */
+  /** Descripción del perfil: 2-3 párrafos, psicología accesible. */
   miniDiagnostico: string[];
   /** "Puede sonarte si…" — señales concretas. */
   teSuenaSi: string[];

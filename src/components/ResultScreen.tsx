@@ -180,10 +180,8 @@ export function ResultScreen({ score, nombre, email, onRestart }: ResultScreenPr
         </div>
       </motion.section>
 
-      {/* ── Mini-diagnóstico ── */}
       <motion.section {...fade} className="mt-4 quiz-card p-6 sm:p-9">
-        <h2 className="text-xl font-bold text-ink">Mini-diagnóstico</h2>
-        <div className="mt-4 space-y-4">
+        <div className="space-y-4">
           {primary.miniDiagnostico.map((p, i) => (
             <p key={i} className="text-pretty font-sans text-[15px] leading-relaxed text-ink-soft">
               {p}
